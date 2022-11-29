@@ -56,7 +56,7 @@ Throughout this lab, we will be developing a very simple integration which will 
   - Change the `ArtemisIntegration.java` as follows:
    - remove `;` after the `log` command and add another step in the route using `to` DSL
    - Use following kamelet endpoint syntax:
-    - `kamelet:\<kamelet-name>?kameletOption=kameletValue`. Use following values:
+    - `kamelet:<kamelet-name>?kameletOption=kameletValue`. Use following values:
      - destination type - `topic`
      - destionation name - `userN-dev` (replace `N` with appropriate number)
      - remoteURI - `amqp://localhost:5672`
