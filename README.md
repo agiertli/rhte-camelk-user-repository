@@ -104,7 +104,7 @@ First, let's take a look at how we can support basic(username+password) authenti
  - camel-k will cleverly "guess" which ConnectionFactory constructor to call based on the number and types of the parameters. Order matters(!)
  - After applying the changes to the kamelet yaml file,  make sure to alter these two attributes as well:
    - `namespace: userN-dev`
-   - `name: jms-amqp-10-sink-custom`
+   - `name: custom-jms-amqp-10-sink`
  - Apply the custom kamelet in your namespace, i.e. `oc apply -f custom-sink-kamelet.yaml -n userN-dev`
  - Test your kamelet by changing `ArtemisIntegration.java` against a _real_ Artemis broker. 
    - You can find out the Broker service url like this  :
