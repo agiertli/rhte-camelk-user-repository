@@ -3,6 +3,11 @@
 Welcome to Cloud Native Integration with camel-k lab. We are excited to have you. The focus of this lab is to share field experience from real, production, camel-k deployment. We will not be focusing on the creation of the complex camel integration. Instead, we will be focusing on everything else - building, deploying, testing, troubleshooting and customizing. The aim is to cover a full lifecycle of developing a camel-k application. From the initial bootstrapping all the way to production deployment.
 Let's get down to it, and most importantly, let's have some fun.
 
+# Lab Goals
+
+The primary goal of this lab is to **_enable Red Hat consultants and architects to deliver camel-k projects for our customers beyond the demo scope_**. We want our attendees to understand all the parts of the camel-k development lifecycle. Including initial local development, dev deployment, troubleshooting, extending the out of the box bits, production deployment. The primary difference between demo and a the _real_ engagement is the environment and its constraints - such as authentication, security, internet access, immutability, supportability, etc.. The lessons learned in this lab are based on _real_ engagement at large UK customer (Motability) which went successfully live. 
+
+
 # Lab environment
 
 The lab setup is backed by ArgoCD - there is single parent app in the `tooling` namespace which deploys following services:
@@ -47,7 +52,7 @@ Throughout this lab, we will be developing a very simple integration which will 
    - `docker run -e AMQ_USER=admin -e AMQ_PASSWORD=password1! -p 8161:8161 -p 5672:5672 --name artemis quay.io/artemiscloud/activemq-artemis-broker`
    - This command will start a broker allowing anonymous connections
  
- Next step is to alter our `ArtemisIntegration.java` to send generated messages to our broker. There are multiple options how to do this - you could use `camel-amqp` component, or `camel-jms` with `qpid` library on the classpath. Trouble is, these components requires you to set up a ConnectionFactory bean. While this is possible in camel-k, it doesn't create the best possible developer experience. Generally speaking, when working with (custom) beans is something which your integration heavily relies on, it should prompt you to re-think our design and decide, whether Camel on Quarkus wouldn't be more suitable option as it offers _most_ flexibility. There is no _single_ right answer, single ConnectionFactory bean certainly doesn't disqualify usage of camel-k, but it's good to be aware of all the options.
+ Next step is to alter our `ArtemisIntegration.java` to send generated messages to our broker. There are multiple options how to do this - you could use `camel-amqp` component, or `camel-jms` with `qpid` library on the classpath. Trouble is, `camel-amqp` is not yet fully supported at the time of writing this lab (12/2022) and `camel-jms` forces you to set up a ConnectionFactory bean manually, via code. While this is possible in camel-k, it doesn't create the best possible developer experience. Generally speaking, when working with (custom) beans is something which your integration heavily relies on, it should prompt you to re-think the design and decide, whether Camel on Quarkus wouldn't be more suitable option as it offers _most_ flexibility. There is no _single_ right answer, single ConnectionFactory bean certainly doesn't disqualify usage of camel-k, but it's good to be aware of all the options.
 
  Instead of implementing our custom ConnectionFactory bean, we will be using `Kamelet`. Kamelets are additional layer of abstraction of camel components. They are hiding the camel component complexity and exposing strict interface to its consumers. Their consumption doesn't require deep camel knowledge - only the knowledge of the interface exposed by the particular Kamelet. They are also built for cloud native deployment, so the transition from locally running route using `camel` to fully fledged `camel-k` integration will be straightforward. Finish the Lab 1 by following steps below:
 
@@ -74,6 +79,50 @@ Throughout this lab, we will be developing a very simple integration which will 
 
 ## Lab 2 - Customizing Kamelets
 
+### Intro
+
+Red Hat ships many kamelets with the camel-k operator out of the box:
+```
+$  oc get kamelet -n tooling | wc -l
+      82
+```
+
+Kamelets are not as flexible as the camel components which they are based on. If the underlying camel component supports hundreds of parameters, but corresponding kamelet only expose couple, chances are, the out of the box kamelet will not be directly useful at your customer or for your use case.
+
+People often don't realize that kamelet can, and even should be, extended and customized. This is how you can ge the best experience out of using them - by tailoring them precisely for your particular use case. And this is what we are going to do in the Lab 2.
+
+### Task
+
+The company standards dictates the integration with any Artemis broker needs to happen only via authenticated user and one-way ssl is enforced. The out of the box kamelet doesn't support neither authentication nor ssl. 
+
+First, let's take a look at how we can support basic(username+password) authentication against Artemis broker.
+
+
+ - Inspect the out of the box kamelet to understand its internal mechanics:
+   - `oc get kamelet jms-amqp-10-sink -n tooling -o yaml | oc neat > custom-sink-kamelet.yaml`
+ - Inspect the [ConnectionFactory constructor](https://github.com/apache/qpid-jms/blob/main/qpid-jms-client/src/main/java/org/apache/qpid/jms/JmsConnectionFactory.java) and see whether there isn't a constructor suitable for our purposes. Consider adding new `username` and `password` kamelet properties and also new ConnectionFactory constructor parameters
+ - camel-k will cleverly "guess" which ConnectionFactory constructor to call based on the number and types of the parameters. Order matters(!)
+ - After applying the changes to the kamelet yaml file,  make sure to alter these two attributes as well:
+   - `namespace: userN-dev`
+   - `name: jms-amqp-10-sink-custom`
+ - Apply the custom kamelet in your namespace, i.e. `oc apply -f custom-sink-kamelet.yaml -n userN-dev`
+ - Test your kamelet by changing `ArtemisIntegration.java` against a _real_ Artemis broker. 
+   - You can find out the Broker service url like this  :
+     -   `oc get svc -n tooling | grep artemis-non-ssl`
+   - TIP: Correct syntax to call services outside of current namespace is `<service>.<pod_namespace>.svc.cluster.local`
+   - Use following credentials to connect:
+     - `username: admin`
+     - `password: password1!`
+ - Run the integration like `kamel run ArtemisIntegration.java` - notice, we are now running the integration on a cluster
+ - If everything went well, you should similar output in the logs:
+   ```
+   2022-12-01 21:29:52,693 INFO  [org.apa.qpi.jms.JmsConnection] (AmqpProvider :(1556):[amqp://rhte-artemis-non-ssl-0-svc.tooling.svc.cluster.local:5672]) Connection ID:ef32e5da-b4a2-4172-bae8-50b0c03b216a:1556 connected to server: amqp://rhte-artemis-non-ssl-0-svc.tooling.svc.cluster.local:5672   
+   ``` 
+
+
+Next, let's add support for one-way ssl:
+
+// TODO
 ## Lab 3 - Running first camel-k integration
 
 ## Lab 4 - Evolution to KameletBindings
