@@ -108,21 +108,21 @@ First, let's take a look at how we can support basic(username+password) authenti
  - Apply the custom kamelet in your namespace, i.e. `oc apply -f custom-sink-kamelet.yaml -n userN-dev`
  - Test your kamelet by changing `ArtemisIntegration.java` against a _real_ Artemis broker. 
    - You can find out the Broker service url like this  :
-     -   `oc get svc -n tooling | grep artemis-non-ssl`
+     -   `oc get svc -n tooling | grep artemis-no-ssl`
    - TIP: Correct syntax to call services outside of current namespace is `<service>.<pod_namespace>.svc.cluster.local`
-   - Use following credentials to connect:
+   - Use following credentials to connect, simply pass them as kamelet endpoint parameters:
      - `username: admin`
      - `password: password1!`
  - Run the integration like `kamel run ArtemisIntegration.java` - notice, we are now running the integration on a cluster
  - If everything went well, you should similar output in the logs:
    ```
-   2022-12-01 21:29:52,693 INFO  [org.apa.qpi.jms.JmsConnection] (AmqpProvider :(1556):[amqp://rhte-artemis-non-ssl-0-svc.tooling.svc.cluster.local:5672]) Connection ID:ef32e5da-b4a2-4172-bae8-50b0c03b216a:1556 connected to server: amqp://rhte-artemis-non-ssl-0-svc.tooling.svc.cluster.local:5672   
+   2022-12-01 21:29:52,693 INFO  [org.apa.qpi.jms.JmsConnection] (AmqpProvider :(1556):[amqp://rhte-artemis-no-ssl-0-svc.tooling.svc.cluster.local:5672]) Connection ID:ef32e5da-b4a2-4172-bae8-50b0c03b216a:1556 connected to server: amqp://rhte-artemis-no-ssl-0-svc.tooling.svc.cluster.local:5672   
    ``` 
 
 
 Next, let's add support for one-way ssl:
 
-When you check the `dependencies` section of the `jms-amqp-10-sink` kamelet, you will notice that it's based on the QPID client. QPID allows to specify most of the client properties directly on the Connection URI, see [official documentation](https://qpid.apache.org/releases/qpid-jms-1.7.0/docs/index.html) for more details. At the very least, we need to supply following URL:
+When you check the `dependencies` section of the `jms-amqp-10-sink` kamelet, you will notice that it's based on the QPID client. QPID allows to specify most of the client properties directly inside the Connection URI, see [official documentation](https://qpid.apache.org/releases/qpid-jms-1.7.0/docs/index.html) for more details. At the very least, we need to supply URL as follows:
 
 `amqps://host:port?transport.trustStoreLocation=/path/to/client/truststore&transport.trustStorePassword=truststorePassword!&transport.verifyHost=false`
 
@@ -142,9 +142,9 @@ Unfortunately it's not so straightforward to pass this value in a camel-k. Any q
 
 By defining the remoteURI query parameters directly in the Kamelet definition, we will bypass camel property parser which was causing the `trustStorePassword` param to "be lost".  
  
-The final step before we attempt to run this new ssl-based integration is to inject the client truststore into the integration pod - see file `client.ts` in your user git repository.  First, you need to create secret based on the contents of this file. `kamel` binary allows us to reference a secret and mount it to a specified location using `--resource secret:secretName@/where/you/want/to/mount/it` syntax. See [documentation](https://camel.apache.org/camel-k/1.10.x/configuration/runtime-resources.html) for more details.
+The final step before we attempt to run this new ssl-based integration is to inject the client truststore into the integration pod - see file `client.ts` in your user git repository.  First, you need to create secret based on the contents of this file. `kamel` binary allows us to reference a secret and mount it to a specified location using `--resource secret:secretName@/where/you/want/to/mount/it` syntax. See [documentation](https://camel.apache.org/camel-k/1.10.x/configuration/runtime-resources.html) for more details. Consider mounting it somewhere under `/etc`.
 
-Here are the new parameter values you need to have in your `ArtemisIntegration.java`:
+Here are the new parameter values you need to update in your `ArtemisIntegration.java`:
  - URI scheme is now `amqps` (as opposed amqp)
  - Get the new _ssl_ service name from `tooling` namespace - beware, the port is also different!
  - truststorePassword is `password1!`
