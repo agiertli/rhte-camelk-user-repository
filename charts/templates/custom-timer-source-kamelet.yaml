@@ -1,3 +1,4 @@
+{{ if .Values.ready}}
 ---
 apiVersion: camel.apache.org/v1alpha1
 kind: Kamelet
@@ -60,3 +61,4 @@ spec:
             {{ "{{groupName}}" }}
       - to: kamelet:sink
       uri: timer:tick
+{{ end }}            

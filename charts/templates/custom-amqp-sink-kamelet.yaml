@@ -1,3 +1,4 @@
+{{ if .Values.ready}}
 ---
 apiVersion: camel.apache.org/v1alpha1
 kind: Kamelet
@@ -75,3 +76,4 @@ spec:
           uri: >-
             {{ "jms:{{destinationType}}:{{destinationName}}" }}
       uri: kamelet:source
+{{ end }}      

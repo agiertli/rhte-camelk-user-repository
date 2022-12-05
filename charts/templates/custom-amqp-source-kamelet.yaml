@@ -1,3 +1,4 @@
+{{ if .Values.ready}}
 ---
 apiVersion: camel.apache.org/v1alpha1
 kind: Kamelet
@@ -76,3 +77,4 @@ spec:
       steps:
       - to:
           uri: "kamelet:sink"
+{{ end }}                
