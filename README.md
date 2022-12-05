@@ -150,10 +150,21 @@ Here are the new parameter values you need to update in your `ArtemisIntegration
  - truststorePassword is `password1!`
 - trustStoreLocation should match whatever you passed via `kamel run --resource ..`
 
-## Lab 3 - Running first camel-k integration
+## Lab 3 - KameletBinding evolution
 
-## Lab 4 - Evolution to KameletBindings
+### Intro
 
-## Lab 5 - Traditional Continuos Delivery
+So far we have been developing our integrations in Java. There are other DSL out there (such as groovy, javascript, and even yaml) but development of such Integration is still fairly technical task and it requires camel knowledge. However with well designed (reusable, configurable) Kamelets it's possible to deploy an integration using slightly different way - by utilizing `KameletBinding`. As the name suggests, it's a OpenShift custom resource which allows you to bind source/sink kamelets (or camel components) in declarative way. This opens a new possibilities for camel-k. KameletBindings enables non-camel experts to deploy and configure Integration. This doesn't mean using of camel-k doesn't require deep technical and integration knowledge - somebody _still_ has to develop and maintain the Kamelets, but once that is done, the adoption of KameletBinding (especially when combined with templating engine such as `helm`) will be very straightfoward. It has another advantages - the fact it's a OpenShift CR means we don't have to deal with `kamel` cli anymore to run an integration. We can directly apply the file on OpenShift and it will result into running Integration. This also greatly fits into today's GitOps ways of working.
 
-## Lab 6 - GitOps styled Continuos Delivery
+
+### Task
+
+In this lab we will turn our Java based integration in the Kamelet Binding. We will use `helm` to generate multiple Kamelet Bindings with ease. We will generate N bindings (where N is number of groups-1) to generate messages for every group in this lab. Then we will add one more binding which will simply read all the messages you as a group received. The output of the helm chart should produce this:
+
+![Helm chart design](helm-chart-design.svg "Helm Chart design")
+
+
+
+## Lab 4 - Traditional Continuos Delivery
+
+## Lab 5 - GitOps styled Continuos Delivery

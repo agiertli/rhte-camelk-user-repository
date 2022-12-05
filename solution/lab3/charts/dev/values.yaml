@@ -1,0 +1,128 @@
+userNamespace: user1-dev
+bindings:
+ - name: rhte-camelk.group1.to.group2
+   secret: artemis-credentials-secret
+   sslSecret: my-artemis-secret
+   source:
+    kamelet: timer-source-with-header
+    properties:
+     groupName: group1
+     message: greetings-from-red-hat-tech-exchange
+   sink:
+     kamelet:  custom-jms-amqp-10-sink
+     properties:
+      destinationName: group2-dev
+      destinationType: topic
+      remoteURI: "{{secret:artemis-credentials-secret/broker-url}}"
+      username:  "{{secret:artemis-credentials-secret/username}}"
+      password:  "{{secret:artemis-credentials-secret/password}}"
+      trustStorePassword: "{{secret:artemis-credentials-secret/trustStorePassword}}"
+
+ - name: rhte-camelk.group1.to.group3
+   secret: artemis-credentials-secret
+   sslSecret: my-artemis-secret
+   source:
+    kamelet: timer-source-with-header
+    properties:
+     groupName: group1
+     message: greetings-from-red-hat-tech-exchange
+   sink:
+     kamelet:  custom-jms-amqp-10-sink
+     properties:
+      destinationName: group3-dev
+      destinationType: topic
+      remoteURI: "{{secret:artemis-credentials-secret/broker-url}}"
+      username:  "{{secret:artemis-credentials-secret/username}}"
+      password:  "{{secret:artemis-credentials-secret/password}}"
+      trustStorePassword: "{{secret:artemis-credentials-secret/trustStorePassword}}"
+
+
+ - name: rhte-camelk.group1.to.group4
+   secret: artemis-credentials-secret
+   sslSecret: my-artemis-secret
+   source:
+    kamelet: timer-source-with-header
+    properties:
+     groupName: group1
+     message: greetings-from-red-hat-tech-exchange
+   sink:
+     kamelet:  custom-jms-amqp-10-sink
+     properties:
+      destinationName: group4-dev
+      destinationType: topic
+      remoteURI: "{{secret:artemis-credentials-secret/broker-url}}"
+      username:  "{{secret:artemis-credentials-secret/username}}"
+      password:  "{{secret:artemis-credentials-secret/password}}"
+      trustStorePassword: "{{secret:artemis-credentials-secret/trustStorePassword}}"
+
+ - name: rhte-camelk.group1.to.group5
+   secret: artemis-credentials-secret
+   sslSecret: my-artemis-secret
+   source:
+    kamelet: timer-source-with-header
+    properties:
+     groupName: group1
+     message: greetings-from-red-hat-tech-exchange
+   sink:
+     kamelet:  custom-jms-amqp-10-sink
+     properties:
+      destinationName: group5-dev
+      destinationType: topic
+      remoteURI: "{{secret:artemis-credentials-secret/broker-url}}"
+      username:  "{{secret:artemis-credentials-secret/username}}"
+      password:  "{{secret:artemis-credentials-secret/password}}"
+      trustStorePassword: "{{secret:artemis-credentials-secret/trustStorePassword}}"
+
+ - name: rhte-camelk.group1.to.group6
+   secret: artemis-credentials-secret
+   sslSecret: my-artemis-secret
+   source:
+    kamelet: timer-source-with-header
+    properties:
+     groupName: group1
+     message: greetings-from-red-hat-tech-exchange
+   sink:
+     kamelet:  custom-jms-amqp-10-sink
+     properties:
+      destinationName: group6-dev
+      destinationType: topic
+      remoteURI: "{{secret:artemis-credentials-secret/broker-url}}"
+      username:  "{{secret:artemis-credentials-secret/username}}"
+      password:  "{{secret:artemis-credentials-secret/password}}"
+      trustStorePassword: "{{secret:artemis-credentials-secret/trustStorePassword}}"
+
+
+ - name: rhte-camelk.group1.to.group7
+   secret: artemis-credentials-secret
+   sslSecret: my-artemis-secret
+   source:
+    kamelet: timer-source-with-header
+    properties:
+     groupName: group1
+     message: greetings-from-red-hat-tech-exchange
+   sink:
+     kamelet:  custom-jms-amqp-10-sink
+     properties:
+      destinationName: group7-dev
+      destinationType: topic
+      remoteURI: "{{secret:artemis-credentials-secret/broker-url}}"
+      username:  "{{secret:artemis-credentials-secret/username}}"
+      password:  "{{secret:artemis-credentials-secret/password}}"
+      trustStorePassword: "{{secret:artemis-credentials-secret/trustStorePassword}}"          
+
+ - name: rhte-camelk.group1.to.log
+   secret: artemis-credentials-secret
+   sslSecret: my-artemis-secret  
+   source:
+     kamelet: custom-jms-amqp-10-source  
+     properties:
+      destinationName: group1-dev
+      destinationType: topic
+      remoteURI: "{{secret:artemis-credentials-secret/broker-url}}"
+      username:  "{{secret:artemis-credentials-secret/username}}"
+      password:  "{{secret:artemis-credentials-secret/password}}"
+      trustStorePassword: "{{secret:artemis-credentials-secret/trustStorePassword}}"                    
+   sink:
+     kamelet: log-sink
+     properties:
+       showHeaders: true
