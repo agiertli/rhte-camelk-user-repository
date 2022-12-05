@@ -161,9 +161,44 @@ So far we have been developing our integrations in Java. There are other DSL out
 
 In this lab we will turn our Java based integration in the Kamelet Binding. We will use `helm` to generate multiple Kamelet Bindings with ease. We will generate N bindings (where N is number of groups-1) to generate messages for every group in this lab. Then we will add one more binding which will simply read all the messages you as a group received. The output of the helm chart should produce this:
 
-![Helm chart design](helm-chart-design.svg "Helm Chart design")
+![Helm chart design for Group1](helm-chart-design.svg "Helm Chart design for Group1")
+
+The actual helm templates were already developed for you, as it would be too time consuming to cover it as part of this lab. While helm and KameletBindings go really well together - because it's really easy to template the bindings, Kamelets also heavily depends on using `{{ camel-k-placeholders }}` which conflicts with `{{ helm-placeholders }}`, so figuring out the syntax is a major PITA.
+
+First, let's start by secret provisioning. If you finished previous lab, you should already have secret containing `client.ts` available in `userN-dev` namespace. If not, make sure to create it now, i.e.: 
+
+`oc create secret generic my-artemis-secret --from-file=client.ts`
+
+We will need one more secret though - previously, our Java integration contained some hardcoded values with sensitive information (such as broker credentials). This is of course not feasible in beyond demo scenario! Let's create _another_ secret which will contain:
+
+ - broker username (admin)
+ - broker password (password1!)
+ - broker connection url (we will be using `amqps` url from previous lab)
+ - truststore password (password1!)
+
+ You can use `utils/create-secrets.sh` and `utils/artemis-secret.yaml` to assist with this task.
+
+Next, go and explore `charts/templates` - that's where all the magic happens. We are defining few custom Kamelets (based on the work from previous labs), but most importantly we are templating the creation of Kamelet Bindings. Understand how _binary_ (vs "normal") secrets are handled. We are also using [traits](https://camel.apache.org/camel-k/1.8.x/traits/traits.html) which is a camel-k feature which allows us to enable additional super powers on top of our integrations. Usage of `Container` trait is almost inevitable in OCP environment. If you study `kamelet-bindings.yaml` you will notice it is completely generic and supports _any_ two Kamelets and _any_ properties.
+
+This is a very powerful concept as you can use this as a base template to define integrations for many different systems. However, if this was a real-world scenario, this helm chart wouldn't be so useful without the accompanying documentation. The only way how to make the consumption of such helm chart easy, is to make sure its consumers can focus on just supplying helm values, and not to deal with the underlying templates (which are still fairly complex and technical).
 
 
+Final task is to change `dev/values.yaml` in such a way that will create the appropriate bindings as per the Helm Diagram screenshot. There are scripts ready for you in `utils` to test the helm chart. The result should look similar to this:
+
+
+```
+oc get klb -n user1-dev
+NAME                           PHASE   REPLICAS
+rhte-camelk.group1.to.group2   Ready   1
+rhte-camelk.group1.to.group3   Ready   1
+rhte-camelk.group1.to.group4   Ready   1
+rhte-camelk.group1.to.group5   Ready   1
+rhte-camelk.group1.to.group6   Ready   1
+rhte-camelk.group1.to.group7   Ready   1
+rhte-camelk.group1.to.log      Ready   1
+```
+
+The number of "groupN.to.groupM" bindings can differ based on the number of actual groups present in the lab. Don't forget to check the integration logs to make sure there are no errors. You can use `kamel get` and `kamel log`, or plain `oc`. 
 
 ## Lab 4 - Traditional Continuos Delivery
 
