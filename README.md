@@ -122,7 +122,34 @@ First, let's take a look at how we can support basic(username+password) authenti
 
 Next, let's add support for one-way ssl:
 
-// TODO
+When you check the `dependencies` section of the `jms-amqp-10-sink` kamelet, you will notice that it's based on the QPID client. QPID allows to specify most of the client properties directly on the Connection URI, see [official documentation](https://qpid.apache.org/releases/qpid-jms-1.7.0/docs/index.html) for more details. At the very least, we need to supply following URL:
+
+`amqps://host:port?transport.trustStoreLocation=/path/to/client/truststore&transport.trustStorePassword=truststorePassword!&transport.verifyHost=false`
+
+Unfortunately it's not so straightforward to pass this value in a camel-k. Any query parameter inside remoteURI will be treated as a kamelet property (and not remoteURI query parameter). In our case it would mean that `truststorePassword` would not be passed to the underlying ConnectionFactory (you are free to try this out;)). Potential solution could be to use [RAW](https://camel.apache.org/manual/faq/how-do-i-configure-endpoints.html) feature of Camel and pass our remoteURI value as RAW(remoteURI). Unfortunately RAW [doesn't seem to work](https://github.com/apache/camel-kamelets/issues/1200) in camel-k 1.8 operator version. So we need to get a bit more creative..:
+
+ - Add three more Kamelet parameters:
+   - verifyHost (type: string, default:false)
+   - trustStoreLocation (type:string)
+   - trustStorePassword (type:string)
+ - Change the way `remoteURI` is defined in Kamelet definition:
+
+    - 
+    ```      
+              - key: remoteURI
+              value: '{{remoteURI}}?transport.trustStoreLocation={{trustStoreLocation}}&transport.trustStorePassword={{trustStorePassword}}&transport.verifyHost={{verifyHost}}'
+    ``` 
+
+By defining the remoteURI query parameters directly in the Kamelet definition, we will bypass camel property parser which was causing the `trustStorePassword` param to "be lost".  
+ 
+The final step before we attempt to run this new ssl-based integration is to inject the client truststore into the integration pod - see file `client.ts` in your user git repository.  First, you need to create secret based on the contents of this file. `kamel` binary allows us to reference a secret and mount it to a specified location using `--resource secret:secretName@/where/you/want/to/mount/it` syntax. See [documentation](https://camel.apache.org/camel-k/1.10.x/configuration/runtime-resources.html) for more details.
+
+Here are the new parameter values you need to have in your `ArtemisIntegration.java`:
+ - URI scheme is now `amqps` (as opposed amqp)
+ - Get the new _ssl_ service name from `tooling` namespace - beware, the port is also different!
+ - truststorePassword is `password1!`
+- trustStoreLocation should match whatever you passed via `kamel run --resource ..`
+
 ## Lab 3 - Running first camel-k integration
 
 ## Lab 4 - Evolution to KameletBindings
