@@ -202,4 +202,9 @@ The number of "groupN.to.groupM" bindings can differ based on the number of actu
 
 ## Lab 4 - Traditional Continuos Delivery
 
+TODO: kamel promote 
+
+stretch goal; tekton
+
 ## Lab 5 - GitOps styled Continuos Delivery
+TODO: ArgoCD app
