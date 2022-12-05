@@ -1,4 +1,4 @@
-oc process -f Secret.yaml \
+oc process -f artemis-secret.yaml \
 -p USER_NAMESPACE=<TODO> \
 -p USERNAME=<TODO> \
 -p PASSWORD=<TODO> \
