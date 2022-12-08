@@ -1,0 +1,22 @@
+ready: false # // CHANGE ME to true when you are ready to start Lab3
+userNamespace: userN-dev # // CHANGE ME !!!
+# Add as many entries below as many groups you want to interact with
+# Last binding is the one which reads messages from your group topic and prints the messages in it. You need to pass property showHeaders with value true to the log kamelet(!)
+bindings:
+#  - name: RHTE_CAMELK_GROUPN_TO_GROUPM
+#    secret: NAME_OF_CREDENTIALS_SECRET
+#    sslSecret: SECRET_WITH_CLIENT.TS
+#    source:
+#     kamelet: NAME_OF_CUSTOM_TIMER_KAMELET
+#     properties:
+#      groupName: NAME_OF_YOUR_GROUP
+#      message: ANY_SPECIAL_MESSAGE_TO_SHARE?
+#    sink:
+#      kamelet:  NAME_OF_CUSTOM_AMQP_SINK_KAMELET
+#      properties:
+#       destinationName: TARGET_GROUP (syntax; groupN-dev)
+#       destinationType: topic
+#       remoteURI: "{{secret:NAME_OF_CREDENTIALS_SECRET/broker-url}}"
+#       username:  "{{secret:NAME_OF_CREDENTIALS_SECRET/username}}"
+#       password:  "{{secret:NAME_OF_CREDENTIALS_SECRET/password}}"
+#       trustStorePassword: "{{secret:NAME_OF_CREDENTIALS_SECRET/trustStorePassword}}"

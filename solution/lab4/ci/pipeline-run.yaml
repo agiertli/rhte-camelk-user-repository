@@ -1,0 +1,32 @@
+apiVersion: tekton.dev/v1beta1
+kind: PipelineRun
+metadata:
+  name: pipeline-cicd-run
+spec:
+  pipelineRef:
+    name: pipeline-cicd
+  taskRunSpecs:
+    - pipelineTaskName: kamel-run
+      taskServiceAccountName: camel-k-pipeline-sa
+    - pipelineTaskName: kamel-promote
+      taskServiceAccountName: camel-k-pipeline-sa   
+  podTemplate:
+    securityContext:
+      fsGroup: 65532
+  workspaces:
+  - name: shared-data
+    volumeClaimTemplate:
+      spec:
+        accessModes:
+        - ReadWriteOnce
+        resources:
+          requests:
+            storage: 1Gi
+  - name: git-credentials
+    secret:
+      secretName: git-credentials
+  params:
+  - name: repo-url
+    value: https://rhte-camelk-gitea-tooling.apps.cluster-lgjw9.lgjw9.sandbox2694.opentlc.com/user1/camelk-user-repository
+  - name: repo-branch
+    value: main  

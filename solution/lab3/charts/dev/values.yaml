@@ -1,4 +1,4 @@
-userNamespace: user1-dev
+userNamespace: user1-prod
 bindings:
  - name: rhte-camelk.group1.to.group2
    secret: artemis-credentials-secret
@@ -11,7 +11,7 @@ bindings:
    sink:
      kamelet:  custom-jms-amqp-10-sink
      properties:
-      destinationName: group2-dev
+      destinationName: group2-prod
       destinationType: topic
       remoteURI: "{{secret:artemis-credentials-secret/broker-url}}"
       username:  "{{secret:artemis-credentials-secret/username}}"
@@ -29,7 +29,7 @@ bindings:
    sink:
      kamelet:  custom-jms-amqp-10-sink
      properties:
-      destinationName: group3-dev
+      destinationName: group3-prod
       destinationType: topic
       remoteURI: "{{secret:artemis-credentials-secret/broker-url}}"
       username:  "{{secret:artemis-credentials-secret/username}}"
@@ -48,7 +48,7 @@ bindings:
    sink:
      kamelet:  custom-jms-amqp-10-sink
      properties:
-      destinationName: group4-dev
+      destinationName: group4-prod
       destinationType: topic
       remoteURI: "{{secret:artemis-credentials-secret/broker-url}}"
       username:  "{{secret:artemis-credentials-secret/username}}"
@@ -66,7 +66,7 @@ bindings:
    sink:
      kamelet:  custom-jms-amqp-10-sink
      properties:
-      destinationName: group5-dev
+      destinationName: group5-prod
       destinationType: topic
       remoteURI: "{{secret:artemis-credentials-secret/broker-url}}"
       username:  "{{secret:artemis-credentials-secret/username}}"
@@ -84,7 +84,7 @@ bindings:
    sink:
      kamelet:  custom-jms-amqp-10-sink
      properties:
-      destinationName: group6-dev
+      destinationName: group6-prod
       destinationType: topic
       remoteURI: "{{secret:artemis-credentials-secret/broker-url}}"
       username:  "{{secret:artemis-credentials-secret/username}}"
@@ -103,7 +103,7 @@ bindings:
    sink:
      kamelet:  custom-jms-amqp-10-sink
      properties:
-      destinationName: group7-dev
+      destinationName: group7-prod
       destinationType: topic
       remoteURI: "{{secret:artemis-credentials-secret/broker-url}}"
       username:  "{{secret:artemis-credentials-secret/username}}"
@@ -116,7 +116,7 @@ bindings:
    source:
      kamelet: custom-jms-amqp-10-source  
      properties:
-      destinationName: group1-dev
+      destinationName: group1-prod
       destinationType: topic
       remoteURI: "{{secret:artemis-credentials-secret/broker-url}}"
       username:  "{{secret:artemis-credentials-secret/username}}"
