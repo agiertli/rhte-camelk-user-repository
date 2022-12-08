@@ -330,9 +330,9 @@ spec:
       workspace: shared-data      
     params:
       - name: filename
-        value: KamelPromoteIntegrationArtemis.java
+        value: labs/lab4/KamelPromoteIntegrationArtemis.java
       - name: namespace
-        value: development
+        value: user1-dev
       - name: config
         value: --config configmap:artemis-config --config secret:artemis-credentials-secret --resource secret:my-artemis-secret@/etc/ssl/jms-sink  
   # Promote to production

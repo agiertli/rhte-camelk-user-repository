@@ -27,6 +27,6 @@ spec:
       secretName: git-credentials
   params:
   - name: repo-url
-    value: https://rhte-camelk-gitea-tooling.apps.cluster-lgjw9.lgjw9.sandbox2694.opentlc.com/user1/camelk-user-repository
+    value: https://github.com/agiertli/rhte-camelk-user-repository.git
   - name: repo-branch
     value: main  
