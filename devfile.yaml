@@ -10,10 +10,10 @@ components:
       cpuLimit: 1000m
       cpuRequest: 500m
 commands:
-  - id: install
+  - id: install-jbang
     exec:
       component: tools
-      commandLine: "/home/user/.sdkman/candidates/jbang/current/bin/jbang trust add -o --fresh --quiet https://github.com/apache/camel/blob/HEAD/dsl/camel-jbang/camel-jbang-main/dist/CamelJBang.java && jbang app install camel@apache/camel"
+      commandLine: "/home/user/.sdkman/candidates/jbang/current/bin/jbang trust add -o --fresh --quiet https://github.com/apache/camel/blob/HEAD/dsl/camel-jbang/camel-jbang-main/dist/CamelJBang.java"
 events:
   postStart:
-    - install
+    - install-jbang
