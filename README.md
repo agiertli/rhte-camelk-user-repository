@@ -147,8 +147,11 @@ The final step before we attempt to run this new ssl-based integration is to inj
 Here are the new parameter values you need to update in your `ArtemisIntegration.java`:
  - URI scheme is now `amqps` (as opposed amqp)
  - Get the new _ssl_ service name from `tooling` namespace - beware, the port is also different!
- - truststorePassword is `password1!`
+ - trustStorePassword is `password1!`
 - trustStoreLocation should match whatever you passed via `kamel run --resource ..`
+
+### Summary
+In this lab we focused on customizing the Kamelets. This is a fundamental feature of the Kamelets and it allows you to unlock the full potential of them.  More often than not you will encounter requirements at your own customers which will make out of the box Kamelets not suitable. You can either raise an RFE and wait months for it to be delivered or fix it yourself - and now you should know how.
 
 ## Lab 3 - KameletBinding evolution
 
@@ -200,9 +203,35 @@ rhte-camelk.group1.to.log      Ready   1
 
 The number of "groupN.to.groupM" bindings can differ based on the number of actual groups present in the lab. Don't forget to check the integration logs to make sure there are no errors. You can use `kamel get` and `kamel log`, or plain `oc`. 
 
-## Lab 4 - Traditional Continuos Delivery
+### Summary
+We showcased how `helm` can be easily used to generate KameletBindings. This combination allow easier consumption of camel-k styled integration, as all it requires is a documentation of `helm` value files.  We also showed how to inject configuration and sensitive data into the bindings and also scratched the surface on the `traits`.
 
-TODO: kamel promote 
+## Lab 4 - Traditional CI/CD
+
+### Intro
+There are multiple challenges when it comes to CI/CD of the camel-k based projects. You will likely find out at your customers that their traditional CI/CD implementations will not be suitable to build, test and promote the camel-k integration. Another challenge is less subtle and will only surface when you start looking under the hood of the integration lifecycle. How do you ensure that the camel-k integration in dev and prod will be based on the _same_ container image? This has been historically very hard to achieve and it changed only recently with the arrival of the `kamel promote` feature which we are going to explore in Lab 4.
+
+### Tasks
+
+We'll start by inspecting the immutability principles which are by default violated when using `kamel run`. 
+
+ - Delete IntegrationKit from `userN-dev` and `userN-prod`. You can do this by using `oc delete ik` or `kamel reset --namespace <MY_NAMESPACE>`
+ - Start the example Integration which is provided in the lab directory in dev namespace:
+   - `kamel run MutableIntegration.java --namespace userN-dev`
+ - Execute `oc get it mutable-integration` command and find out what IntegrationKit is your integration using
+ - Execute `oc get ik <INTEGRATION_KIT_NAME_FROM_PREVIOUS_STEP>` and note down the name of the container image
+ - Now manually deploy the integration into the production namespace `kamel run MutableIntegration.java --namespace userN-prod` and repeat the procedure.
+ - Are the container images same or not?
+
+ Let's examine what happened. We are running two separate Namespace-scoped installation of camel-k operator, which are completely independent. By default, there is no way for camel-k operator to know it should re-use the existing IntegrationKit (or its container image), so it will initiate a completely new build, thus violating immutability principles. If you'd be running global operator installation, this _could_ potentially work - but if you delete the IntegrationKit in between the integration promotion you would arrive at the same outcome. And the same outcome would happen if you'd be doing integration promotion across clusters.
+### Summary
+
+
+### Intro
+
+### Task
+
+### Summary
 
 stretch goal; tekton
 

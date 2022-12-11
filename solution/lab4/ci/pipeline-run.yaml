@@ -2,6 +2,7 @@ apiVersion: tekton.dev/v1beta1
 kind: PipelineRun
 metadata:
   name: pipeline-cicd-run
+  generateName: camel-k-pipeline-
 spec:
   pipelineRef:
     name: pipeline-cicd
@@ -10,9 +11,6 @@ spec:
       taskServiceAccountName: camel-k-pipeline-sa
     - pipelineTaskName: kamel-promote
       taskServiceAccountName: camel-k-pipeline-sa   
-  podTemplate:
-    securityContext:
-      fsGroup: 65532
   workspaces:
   - name: shared-data
     volumeClaimTemplate:

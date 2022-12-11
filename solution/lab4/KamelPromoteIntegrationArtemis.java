@@ -12,6 +12,6 @@ public class KamelPromoteIntegrationArtemis extends RouteBuilder {
             .setBody()
                 .simple("Hello Camel from ${routeId}")
             .log("${body}")
-           .to("kamelet:custom-jms-amqp-10-sink?destinationType={{destinationType}}&destinationName={{destination}}&remoteURI={{broker-url}}&trustStoreLocation=/etc/ssl/jms-sink/client.ts&trustStorePassword={{trustStorePassword}}&username={{username}}&password={{password}}");
+           .to("kamelet:custom-jms-amqp-10-sink?destinationType={{destinationType}}&destinationName={{destination}}&remoteURI={{broker-url}}&trustStoreLocation={{trustStoreLocation}}&trustStorePassword={{trustStorePassword}}&username={{username}}&password={{password}}");
     }
 }
