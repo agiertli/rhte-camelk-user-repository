@@ -224,8 +224,20 @@ We'll start by inspecting the immutability principles which are by default viola
  - Are the container images same or not?
 
  Let's examine what happened. We are running two separate Namespace-scoped installation of camel-k operator, which are completely independent. By default, there is no way for camel-k operator to know it should re-use the existing IntegrationKit (or its container image), so it will initiate a completely new build, thus violating immutability principles. If you'd be running global operator installation, this _could_ potentially work - but if you delete the IntegrationKit in between the integration promotion you would arrive at the same outcome. And the same outcome would happen if you'd be doing integration promotion across clusters.
+
+ Now let's see how we can use `kamel promote` to overcome this problem. Most of the resources are already provided for you, you just need to fill in the blanks. We have prepared a Tekton pipeline for you which fetches the gitea repo, runs the camel-k integration and then promotes it to production by utilizing `kamel promote`. In real world pipeline there would be some integration and smoke tests as well, but this is beyond the scope of this lab.
+
+  - Examine `create-resources.sh` script and change it as needed. This will create the resources Integration. Note that we _must_ precreate these in advance of running `kamel promote` operation in the target (production) namespace as well. In real scenario these would be populated by the pipeline or via GitOps. 
+  - Inspect `pipeline.yaml` and understand what it does.
+  - Fix the parameters of `kamel run` task (line 331-337). You need to config and mount all the required secrets and config map. Refer to [Runtime Configuration](https://camel.apache.org/camel-k/1.10.x/configuration/runtime-config.html) and [Runtime Resources](https://camel.apache.org/camel-k/1.10.x/configuration/runtime-resources.html) if you need help.
+  - Fix parameters of `kamel promote` task (line 346-352)
+  - Inspect `pipeline-run.yaml` and fix the git repo url at line 28
+  - Apply `pipeline.yaml` and `pipeline-run.yaml` onto your OCP cluster. You can inspect the Tekton pipelines also via OpenShift console
+  - Troubleshoot any potential issues and verify whether the container images are the same for both, dev and prod integration
+
 ### Summary
 
+`kamel promote` simplifies the promotion of the camel-k styled integration to higher environments. It ensures immutability principles by reusing the same container images between different environments. It also simplifies the configuration - it's smart enough to understand what configuration (config maps, secrets) were part of the source integration so we don't have to explicitly state it anymore when promoting to higher environment. What it lacks is the better integration with GitOps styled deployments. The [issue](https://github.com/apache/camel-k/issues/3888) has been raised to improve this behaviour.
 
 ### Intro
 
