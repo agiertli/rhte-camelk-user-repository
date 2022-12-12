@@ -239,13 +239,5 @@ We'll start by inspecting the immutability principles which are by default viola
 
 `kamel promote` simplifies the promotion of the camel-k styled integration to higher environments. It ensures immutability principles by reusing the same container images between different environments. It also simplifies the configuration - it's smart enough to understand what configuration (config maps, secrets) were part of the source integration so we don't have to explicitly state it anymore when promoting to higher environment. What it lacks is the better integration with GitOps styled deployments. The [issue](https://github.com/apache/camel-k/issues/3888) has been raised to improve this behaviour.
 
-### Intro
-
-### Task
-
-### Summary
-
-stretch goal; tekton
-
 ## Lab 5 - GitOps styled Continuos Delivery
 TODO: ArgoCD app
