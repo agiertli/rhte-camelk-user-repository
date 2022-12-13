@@ -1,8 +1,6 @@
 schemaVersion: 2.1.0
 metadata:
   name: demo-project
-variables:
-  USER_VAR: user2
 components:
   - name: tools
     container:
@@ -16,13 +14,6 @@ commands:
     exec:
       component: tools
       commandLine: " /home/user/.sdkman/candidates/jbang/current/bin/jbang trust add -o --fresh --quiet https://github.com/apache/camel/blob/HEAD/dsl/camel-jbang/camel-jbang-main/dist/CamelJBang.java && /home/user/.sdkman/candidates/jbang/current/bin/jbang app install camel@apache/camel"
-projects:
- - name: camelk-user-repository
-   git:
-     remotes:
-       origin: http://rhte-camelk-gitea.tooling.svc.cluster.local:3000/{{USER_VAR}}/camelk-user-repository  
-     checkoutFrom:
-       revision: main
 events:
   postStart:
     - install-jbang
