@@ -5,7 +5,7 @@ projects:
   - name: camelk-user-repository
     git:
       remotes:
-        origin: http://rhte-camelk-gitea.tooling.svc.cluster.local:3000/${USERNAME}/camelk-user-repository  
+        origin: http://rhte-camelk-gitea.tooling.svc.cluster.local:3000/user1/camelk-user-repository  
       checkoutFrom:
         revision: main
 components:
