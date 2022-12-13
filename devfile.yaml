@@ -1,6 +1,13 @@
 schemaVersion: 2.1.0
 metadata:
   name: demo-project
+projects:
+  - name: camelk-user-repository
+    git:
+      remotes:
+        origin: http://rhte-camelk-gitea.tooling.svc.cluster.local:3000/${USERNAME}/camelk-user-repository  
+      checkoutFrom:
+        revision: main
 components:
   - name: tools
     container:
