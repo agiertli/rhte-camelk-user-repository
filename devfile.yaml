@@ -2,7 +2,7 @@ schemaVersion: 2.1.0
 metadata:
   name: demo-project
 variables:
-  user: user2
+  USER_VAR: user2
 components:
   - name: tools
     container:
@@ -20,7 +20,7 @@ projects:
  - name: camelk-user-repository
    git:
      remotes:
-       origin: 'http://rhte-camelk-gitea.tooling.svc.cluster.local:3000/{user}/camelk-user-repository'  
+       origin: http://rhte-camelk-gitea.tooling.svc.cluster.local:3000/{{USER_VAR}}/camelk-user-repository  
      checkoutFrom:
        revision: main
 events:
