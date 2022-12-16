@@ -9,6 +9,13 @@ components:
       memoryLimit: 3Gi
       cpuLimit: 1000m
       cpuRequest: 500m
+projects:
+  - name: camelk-user-repository
+    git:
+      remotes:
+        origin: https://github.com/agiertli/rhte-camelk-user-repository
+      checkoutFrom:
+        revision: main
 commands:
   - id: install-jbang
     exec:
