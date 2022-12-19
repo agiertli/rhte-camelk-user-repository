@@ -72,15 +72,15 @@ There are two options how to start developing camel-k integration locally withou
 
 ## Task
 
-1. Test the `camel/jbang` cli tooling to understand how the local development experience looks like:
+__1. Test the `camel/jbang` cli tooling to understand how the local development experience looks like:__
  
-    - Install JBang as per https://www.jbang.dev/download/
-    - Install `camel` cli as per https://camel.apache.org/manual/camel-jbang.html
-    - Create a `ArtemisIntegration` camel Route using `camel` cli and run it
-      - You should see similar output in the console log 
-        ```
-        2022-11-29 20:37:28.693  INFO 72000 --- [ - timer://java] ArtemisIntegration.java:14               : Hello Camel from java
-        ```
+- Install JBang as per https://www.jbang.dev/download/
+- Install `camel` cli as per https://camel.apache.org/manual/camel-jbang.html
+- Create a `ArtemisIntegration` camel Route using `camel` cli and run it
+- You should see similar output in the console log 
+  ```
+  2022-11-29 20:37:28.693  INFO 72000 --- [ - timer://java] ArtemisIntegration.java:14               : Hello Camel from java
+  ```
 
 <br/>
 
@@ -95,25 +95,34 @@ With Dev Spaces, we have the spun up a artemis pod to use with the following par
 
 <br/>
 
-2. Start Artemis broker instance using `docker` or `podman`:
+__2. Start Artemis broker instance using `docker` or `podman`__
 
    ```
-   docker run --platform linux/amd64 -e AMQ_USER=admin -e AMQ_PASSWORD=password1! -p 8161:8161 -p 5672:5672 --name artemis quay.io/artemiscloud/activemq-artemis-broker
+   docker run --platform linux/amd64 -e AMQ_RESET_CONFIG=true -e AMQ_USER=admin -e AMQ_PASSWORD=password1! -p 8161:8161 -p 5672:5672 --name artemis quay.io/artemiscloud/activemq-artemis-broker
 
    (This command will start a broker allowing anonymous connections)
    ```
 
 <br/>
  
+
+__3. Connect `ArtemisIntegration` to the local Artemis__
+
 Next step is to alter our `ArtemisIntegration.java` to send generated messages to our broker. 
  
-There are multiple options how to do this - you could use `camel-amqp` component, or `camel-jms` with `qpid` library on the classpath. Trouble is, `camel-amqp` is not yet fully supported at the time of writing this lab (12/2022) and `camel-jms` forces you to set up a ConnectionFactory bean manually, via code. While this is possible in camel-k, it doesn't create the best possible developer experience. Generally speaking, when working with (custom) beans is something which your integration heavily relies on, it should prompt you to re-think the design and decide, whether Camel on Quarkus wouldn't be more suitable option as it offers the _most_ flexibility. There is no _single_ right answer, single ConnectionFactory bean certainly doesn't disqualify usage of camel-k, but it's good to be aware of all the options.
+There are multiple options how to do this:
+- `camel-amqp` component
+- `camel-jms` with `qpid` library on the classpath. 
+
+Trouble is, `camel-amqp` is not yet fully supported at the time of writing this lab (12/2022) and `camel-jms` forces you to set up a ConnectionFactory bean manually, via code. 
+
+While this is possible in camel-k, it doesn't create the best possible developer experience. Generally speaking, when working with (custom) beans is something which your integration heavily relies on, it should prompt you to re-think the design and decide, whether Camel on Quarkus wouldn't be more suitable option as it offers the _most_ flexibility. There is no _single_ right answer, single ConnectionFactory bean certainly doesn't disqualify usage of camel-k, but it's good to be aware of all the options.
 
 Instead of implementing our custom ConnectionFactory bean, we will be using `Kamelet`. Kamelets are additional layers of abstraction of camel components. They are hiding the camel component complexity and exposing strict interface to its consumers. Their consumption doesn't require deep camel knowledge - only the knowledge of the interface exposed by the particular Kamelet. They are also built for cloud native deployment, so the transition from locally running route using `camel` to fully fledged `camel-k` integration will be straightforward. 
 
 <br/>
 
-3. Finish the Lab 1 by following steps below:
+__Finish the Lab 1 by following steps below:__
 
   - Execute `camel catalog kamelets | grep amqp`  to locate  amqp compatible kamelet
   - Use `camel doc <kamelet-name>` to familiarize yourself with the __AMQP Sink Kamelet__
@@ -154,39 +163,49 @@ $  oc get kamelet -n tooling | wc -l
 
 `Kamelets` are __not as flexible__ as the camel components which they are based on. If the underlying camel component supports hundreds of parameters, the corresponding kamelet only expose a couple, chances are, the out of the box kamelet will not be directly useful at your customer or for your use case.
 
-People often don't realize that `kamelet` can, and even should be, __extended and customized__. This is how you can ge the best experience out of using them - by tailoring them precisely for your particular use case. And this is what we are going to do in the Lab 2.
+People often don't realize that `kamelet` can, and even should be, __extended and customized__. This is how you can ge the best experience out of using them - by tailoring them precisely for your particular use case. And __this is what we are going to do in the Lab 2.__
 
 <br/>
 
 ## Task
 
-The company standards dictates the integration with any Artemis broker needs to happen only via __authenticated user and one-way ssl is enforced__. The out of the box kamelet doesn't support neither authentication nor ssl. 
+Most times the integration with any Artemis broker needs __authenticated users and one-way ssl enforced__.  - The out of the box kamelet doesn't support neither authentication nor ssl. 
 
-First, let's take a look at how we can support basic(username+password) authentication against Artemis broker.
+__1. Support basic authentication against Artemis broker__
 
  - Inspect the out of the box kamelet to understand its internal mechanics:
-   - `oc get kamelet jms-amqp-10-sink -n tooling -o yaml | oc neat > custom-sink-kamelet.yaml`
+   ```
+   oc get kamelet jms-amqp-10-sink -n tooling -o yaml | oc neat > custom-sink-kamelet.yaml
+   ```
  - Inspect the [ConnectionFactory constructor](https://github.com/apache/qpid-jms/blob/main/qpid-jms-client/src/main/java/org/apache/qpid/jms/JmsConnectionFactory.java) and see whether there isn't a constructor suitable for our purposes. Consider adding new `username` and `password` kamelet properties and also new ConnectionFactory constructor parameters
  - camel-k will cleverly "guess" which ConnectionFactory constructor to call based on the number and types of the parameters. Order matters(!)
  - After applying the changes to the kamelet yaml file,  make sure to alter these two attributes as well:
    - `namespace: userN-dev`
    - `name: custom-jms-amqp-10-sink`
- - Apply the custom kamelet in your namespace, i.e. `oc apply -f custom-sink-kamelet.yaml -n userN-dev`
- - Test your kamelet by changing `ArtemisIntegration.java` against a _real_ Artemis broker. 
-   - You can find out the Broker service url like this  :
-     -   `oc get svc -n tooling | grep artemis-no-ssl`
+ - Apply the custom kamelet in your namespace, i.e. 
+    ```
+    oc apply -f custom-sink-kamelet.yaml -n userN-dev
+    ```
+ - Test your kamelet by changing `ArtemisIntegration.java` to connect to the Artemis Broker running on OCP
+   - You can find out the Broker service url like this:
+      ```
+      oc get svc -n tooling | grep artemis-no-ssl
+      ```
    - TIP: Correct syntax to call services outside of current namespace is `<service>.<pod_namespace>.svc.cluster.local`
    - Use following credentials to connect, simply pass them as kamelet endpoint parameters:
      - `username: admin`
      - `password: password1!`
- - Run the integration like `kamel run ArtemisIntegration.java` - notice, we are now running the integration on a cluster
+ - Run the integration - notice, we are now running the integration on a cluster
+    ```
+    kamel run ArtemisIntegration.java
+    ```
  - If everything went well, you should similar output in the logs:
    ```
    2022-12-01 21:29:52,693 INFO  [org.apa.qpi.jms.JmsConnection] (AmqpProvider :(1556):[amqp://rhte-artemis-no-ssl-0-svc.tooling.svc.cluster.local:5672]) Connection ID:ef32e5da-b4a2-4172-bae8-50b0c03b216a:1556 connected to server: amqp://rhte-artemis-no-ssl-0-svc.tooling.svc.cluster.local:5672   
    ``` 
 
 
-Next, let's add support for one-way ssl:
+__2. Add one-way ssl__
 
 When you check the `dependencies` section of the `jms-amqp-10-sink` kamelet, you will notice that it's based on the QPID client. QPID allows to specify most of the client properties directly inside the Connection URI, see [official documentation](https://qpid.apache.org/releases/qpid-jms-1.7.0/docs/index.html) for more details. At the very least, we need to supply URL as follows:
 

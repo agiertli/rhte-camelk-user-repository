@@ -1,4 +1,3 @@
-
 // camel-k: language=java
 
 import org.apache.camel.builder.RouteBuilder;
@@ -12,7 +11,6 @@ public class ArtemisIntegration extends RouteBuilder {
         from("timer:java?period={{time:1000}}").routeId("java")
             .setBody()
                 .simple("Hello Camel from ${routeId}")
-            .log("${body}")
-            .to("kamelet:jms-amqp-10-sink?destinationType=topic&destinationName=user1-dev&remoteURI=amqp://localhost:5672");
+            .log("${body}");
     }
 }
