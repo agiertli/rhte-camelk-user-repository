@@ -157,7 +157,8 @@ __Finish the Lab 1 by following steps below:__
 
 Red Hat ships many kamelets with the camel-k operator out of the box:
 ```
-$  oc get kamelet -n tooling | wc -l
+$  oc project userX-dev
+$  oc get kamelet | wc -l
       82
 ```
 
@@ -175,7 +176,7 @@ __1. Support basic authentication against Artemis broker__
 
  - Inspect the out of the box kamelet to understand its internal mechanics:
    ```
-   oc get kamelet jms-amqp-10-sink -n tooling -o yaml | oc neat > custom-sink-kamelet.yaml
+   oc get kamelet jms-amqp-10-sink -o yaml | oc neat > custom-sink-kamelet.yaml
    ```
  - Inspect the [ConnectionFactory constructor](https://github.com/apache/qpid-jms/blob/main/qpid-jms-client/src/main/java/org/apache/qpid/jms/JmsConnectionFactory.java) and see whether there isn't a constructor suitable for our purposes. Consider adding new `username` and `password` kamelet properties and also new ConnectionFactory constructor parameters
  - camel-k will cleverly "guess" which ConnectionFactory constructor to call based on the number and types of the parameters. Order matters(!)

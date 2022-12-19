@@ -10,7 +10,6 @@ metadata:
     camel.apache.org/kamelet.type: sink
     camel.apache.org/requires.runtime: camel-k
   name: custom-jms-amqp-10-sink
-  namespace: camelk-instructor
 spec:
   definition:
     description: A Kamelet that can produce events to any AMQP 1.0 compliant message
