@@ -1,12 +1,32 @@
 # Cloud Native Integration with camel-k: Beyond Demo 
 
-Welcome to Cloud Native Integration with camel-k lab. We are excited to have you. The focus of this lab is to share field experience from real, production, camel-k deployment. We will not be focusing on the creation of the complex camel integration. Instead, we will be focusing on everything else - building, deploying, testing, troubleshooting and customizing. The aim is to cover a full lifecycle of developing a camel-k application. From the initial bootstrapping all the way to production deployment.
-Let's get down to it, and most importantly, let's have some fun.
+Welcome to Cloud Native Integration with camel-k lab. 
+
+We are excited to have you. The focus of this lab is to share field experience from real, production, camel-k deployments. 
+
+The aim is to cover a full lifecycle of developing a camel-k application - building, deploying, testing, troubleshooting and customizing.
+
+Let's get down to it, and most importantly, let's have some fun!
+
+<br/>
 
 # Lab Goals as
 
-The primary goal of this lab is to **_enable Red Hat consultants and architects to deliver camel-k projects for our customers beyond the demo scope_**. We want our attendees to understand all the parts of the camel-k development lifecycle. Including initial local development, dev deployment, troubleshooting, extending the out of the box bits, production deployment. The primary difference between demo and a the _real_ engagement is the environment and its constraints - such as authentication, security, internet access, immutability, supportability, etc.. The lessons learned in this lab are based on _real_ engagement at large UK customer (Motability) which went successfully live. 
+The primary goal of this lab is to **_enable Red Hat consultants and architects to deliver camel-k projects for our customers beyond the demo scope_**. 
 
+We want our attendees to understand all the parts of the camel-k development lifecycle. Including initial local development, dev deployment, troubleshooting, extending the out of the box bits, production deployment. 
+
+The primary difference between a demo and a _real_ engagement is the environment and its constraints:
+- authentication
+- security
+- internet access (or lack of it) 
+- immutability
+- supportability
+- (...)
+
+The lessons learned in this lab are based on a _real_ engagement at large UK customer (Motability) which went successfully live. 
+
+<br/>
 
 # Lab environment
 
@@ -24,12 +44,23 @@ Final Argo Application, called `namespaces` configures user namespaces and permi
  - userN-dev
  - userN-prod
 
+<br/>
 
-## Lab 1 - Local development
+# Lab 1 - Local development
 
-### Intro
+## Intro
 
-`camel-k` is a cloud native integration framework. It builds on top of camel, quarkus and targets Cloud (kubernetes, OpenShift) as its target runtime. `camel-k` comes with `kamel` cli tool which enables developer to deploy integration onto cloud. By default, `kamel` requires cloud access. But what if you are in early stages of development and you just want to test your integration locally? What if the components you want to integrate with, are not yet available in the cloud platform? 
+`camel-k` is a cloud native integration framework:
+- builds on top of camel, quarkus and targets Cloud (kubernetes, OpenShift) as its target runtime. 
+- comes with `kamel` cli tool which enables developer to deploy integration onto cloud. By default, `kamel` requires cloud access. 
+
+<br/>
+
+__But what if you are in early stages of development and you just want to test your integration locally?__
+
+__What if the components you want to integrate with, are not yet available in the cloud platform?__ 
+
+<br/>
 
 There are two options how to start developing camel-k integration locally without depending on cloud access:
 
@@ -38,36 +69,61 @@ There are two options how to start developing camel-k integration locally withou
  * camel/jbang
    -   https://camel.apache.org/manual/camel-jbang.html
 
-### Task
-Test the `camel/jbang` cli tooling to understand how the local development experience looks like:
+
+## Task
+
+1. Test the `camel/jbang` cli tooling to understand how the local development experience looks like:
  
-  - Install JBang as per https://www.jbang.dev/download/
-  - Install `camel` cli as per https://camel.apache.org/manual/camel-jbang.html
-  - Initialize `ArtemisIntegration` using `camel` cli and run it
-    - You should see similar output in the console log `2022-11-29 20:37:28.693  INFO 72000 --- [ - timer://java] ArtemisIntegration.java:14               : Hello Camel from java`
+    - Install JBang as per https://www.jbang.dev/download/
+    - Install `camel` cli as per https://camel.apache.org/manual/camel-jbang.html
+    - Create a `ArtemisIntegration` camel Route using `camel` cli and run it
+      - You should see similar output in the console log 
+        ```
+        2022-11-29 20:37:28.693  INFO 72000 --- [ - timer://java] ArtemisIntegration.java:14               : Hello Camel from java
+        ```
 
-Throughout this lab, we will be developing a very simple integration which will talk to an Artemis broker. Since we are still in the early stages of development, we will use an artemis instance and then we will change our `ArtemisIntegration` so it will talk to the broker instance.
+<br/>
 
+Throughout this lab, we will be developing a very __simple integration which will talk to an Artemis broker__. 
+
+Since we are still in the early stages of development, we will spin up an artemis instance on our local machines using docker (or podman), then we will change our `ArtemisIntegration` so it connect to the local broker instance.
 
 With Dev Spaces, we have the spun up a artemis pod to use with the following params:
    - `AMQ_USER=admin`
    - `AMQ_PASSWORD=password1!`
    - Access to the artemis pod with dev spaces is done using `artemis-amqp-service`. 
 
- 
- Next step is to alter our `ArtemisIntegration.java` to send generated messages to our broker. There are multiple options how to do this - you could use `camel-amqp` component, or `camel-jms` with `qpid` library on the classpath. Trouble is, `camel-amqp` is not yet fully supported at the time of writing this lab (12/2022) and `camel-jms` forces you to set up a ConnectionFactory bean manually, via code. While this is possible in camel-k, it doesn't create the best possible developer experience. Generally speaking, when working with (custom) beans is something which your integration heavily relies on, it should prompt you to re-think the design and decide, whether Camel on Quarkus wouldn't be more suitable option as it offers _most_ flexibility. There is no _single_ right answer, single ConnectionFactory bean certainly doesn't disqualify usage of camel-k, but it's good to be aware of all the options.
+<br/>
 
- Instead of implementing our custom ConnectionFactory bean, we will be using `Kamelet`. Kamelets are additional layer of abstraction of camel components. They are hiding the camel component complexity and exposing strict interface to its consumers. Their consumption doesn't require deep camel knowledge - only the knowledge of the interface exposed by the particular Kamelet. They are also built for cloud native deployment, so the transition from locally running route using `camel` to fully fledged `camel-k` integration will be straightforward. Finish the Lab 1 by following steps below:
+2. Start Artemis broker instance using `docker` or `podman`:
+
+   ```
+   docker run --platform linux/amd64 -e AMQ_USER=admin -e AMQ_PASSWORD=password1! -p 8161:8161 -p 5672:5672 --name artemis quay.io/artemiscloud/activemq-artemis-broker
+
+   (This command will start a broker allowing anonymous connections)
+   ```
+
+<br/>
+ 
+Next step is to alter our `ArtemisIntegration.java` to send generated messages to our broker. 
+ 
+There are multiple options how to do this - you could use `camel-amqp` component, or `camel-jms` with `qpid` library on the classpath. Trouble is, `camel-amqp` is not yet fully supported at the time of writing this lab (12/2022) and `camel-jms` forces you to set up a ConnectionFactory bean manually, via code. While this is possible in camel-k, it doesn't create the best possible developer experience. Generally speaking, when working with (custom) beans is something which your integration heavily relies on, it should prompt you to re-think the design and decide, whether Camel on Quarkus wouldn't be more suitable option as it offers the _most_ flexibility. There is no _single_ right answer, single ConnectionFactory bean certainly doesn't disqualify usage of camel-k, but it's good to be aware of all the options.
+
+Instead of implementing our custom ConnectionFactory bean, we will be using `Kamelet`. Kamelets are additional layers of abstraction of camel components. They are hiding the camel component complexity and exposing strict interface to its consumers. Their consumption doesn't require deep camel knowledge - only the knowledge of the interface exposed by the particular Kamelet. They are also built for cloud native deployment, so the transition from locally running route using `camel` to fully fledged `camel-k` integration will be straightforward. 
+
+<br/>
+
+3. Finish the Lab 1 by following steps below:
 
   - Execute `camel catalog kamelets | grep amqp`  to locate  amqp compatible kamelet
-  - Use `camel doc <kamelet-name>` to familiarize yourself with the AMQP Sink Kamelet
+  - Use `camel doc <kamelet-name>` to familiarize yourself with the __AMQP Sink Kamelet__
   - Change the `ArtemisIntegration.java` as follows:
-   - remove `;` after the `log` command and add another step in the route using `to` DSL
-   - Use following kamelet endpoint syntax:
-    - `kamelet:<kamelet-name>?kameletOption=kameletValue`. Use following values:
-     - destination type - `topic`
-     - destionation name - `userN-dev` (replace `N` with appropriate number)
-     - remoteURI - `amqp://artemis-service:5672`
+    - remove `;` after the `log` command and add another step in the route using `to` DSL
+    - Use following kamelet endpoint syntax:
+      - `kamelet:<kamelet-name>?kameletOption=kameletValue`. Use following values:
+      - destination type - `topic`
+      - destionation name - `userN-dev` (replace `N` with appropriate number)
+      - remoteURI - `amqp://localhost:5672`
    - Run the `ArtemisIntegration.java` again, you should see following in the logs:
 
     
@@ -76,13 +132,19 @@ With Dev Spaces, we have the spun up a artemis pod to use with the following par
     
 
 
-### Summary
+## Summary
 
-`kamel local` or `camel` cli tools allows developers to work on the integrations locally which can be useful in early stages of development. If your integration depends on 3rd party services (be it AMQ Broker, Kafka cluster, etc) you could mock those locally by using `podman` or `docker`. Engineering is working to improve the local development experience, especially the "mocking" part. `Kamelets` can be extremely useful if you want to hide complexity of the underlying camel components and enable non-camel developers to integrate with services easily.
+- `kamel local` or `camel` cli tools allows developers to work on the integrations locally which can be useful in early stages of development. 
 
-## Lab 2 - Customizing Kamelets
+- If your integration depends on 3rd party services (be it AMQ Broker, Kafka cluster, etc) you could mock those locally by using `podman` or `docker`. Engineering is working to improve the local development experience, especially the "mocking" part. 
 
-### Intro
+- `Kamelets` can be extremely useful if you want to hide complexity of the underlying camel components and enable non-camel developers to integrate with services easily.
+
+<br/>
+
+# Lab 2 - Customizing Kamelets
+
+## Intro
 
 Red Hat ships many kamelets with the camel-k operator out of the box:
 ```
@@ -90,16 +152,17 @@ $  oc get kamelet -n tooling | wc -l
       82
 ```
 
-Kamelets are not as flexible as the camel components which they are based on. If the underlying camel component supports hundreds of parameters, but corresponding kamelet only expose couple, chances are, the out of the box kamelet will not be directly useful at your customer or for your use case.
+`Kamelets` are __not as flexible__ as the camel components which they are based on. If the underlying camel component supports hundreds of parameters, the corresponding kamelet only expose a couple, chances are, the out of the box kamelet will not be directly useful at your customer or for your use case.
 
-People often don't realize that kamelet can, and even should be, extended and customized. This is how you can ge the best experience out of using them - by tailoring them precisely for your particular use case. And this is what we are going to do in the Lab 2.
+People often don't realize that `kamelet` can, and even should be, __extended and customized__. This is how you can ge the best experience out of using them - by tailoring them precisely for your particular use case. And this is what we are going to do in the Lab 2.
 
-### Task
+<br/>
 
-The company standards dictates the integration with any Artemis broker needs to happen only via authenticated user and one-way ssl is enforced. The out of the box kamelet doesn't support neither authentication nor ssl. 
+## Task
+
+The company standards dictates the integration with any Artemis broker needs to happen only via __authenticated user and one-way ssl is enforced__. The out of the box kamelet doesn't support neither authentication nor ssl. 
 
 First, let's take a look at how we can support basic(username+password) authentication against Artemis broker.
-
 
  - Inspect the out of the box kamelet to understand its internal mechanics:
    - `oc get kamelet jms-amqp-10-sink -n tooling -o yaml | oc neat > custom-sink-kamelet.yaml`
@@ -244,3 +307,8 @@ We'll start by inspecting the immutability principles which are by default viola
 
 ## Lab 5 - GitOps styled Continuos Delivery
 TODO: ArgoCD app
+
+
+# Known issues
+
+1- Using podman to run amd64 images: https://edofic.com/posts/2021-09-12-podman-m1-amd64/
