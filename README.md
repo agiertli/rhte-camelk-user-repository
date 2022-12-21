@@ -46,11 +46,14 @@ Test the `camel/jbang` cli tooling to understand how the local development exper
   - Initialize `ArtemisIntegration` using `camel` cli and run it
     - You should see similar output in the console log `2022-11-29 20:37:28.693  INFO 72000 --- [ - timer://java] ArtemisIntegration.java:14               : Hello Camel from java`
 
-Throughout this lab, we will be developing a very simple integration which will talk to Artemis broker. Since we are still in the early stages of development, we will spin up an artemis instance on our local machines using docker (or podman) and then we will change our `ArtemisIntegration` so it will talk to the locally running broker instance.
+Throughout this lab, we will be developing a very simple integration which will talk to an Artemis broker. Since we are still in the early stages of development, we will use an artemis instance and then we will change our `ArtemisIntegration` so it will talk to the broker instance.
 
- - Start Artemis broker instance using `docker` or `podman`:
-   - `docker run -e AMQ_USER=admin -e AMQ_PASSWORD=password1! -p 8161:8161 -p 5672:5672 --name artemis quay.io/artemiscloud/activemq-artemis-broker`
-   - This command will start a broker allowing anonymous connections
+
+With Dev Spaces, we have the spun up a artemis pod to use with the following params:
+   - `AMQ_USER=admin`
+   - `AMQ_PASSWORD=password1!`
+   - Access to the artemis pod with dev spaces is done using `artemis-amqp-service`. 
+
  
  Next step is to alter our `ArtemisIntegration.java` to send generated messages to our broker. There are multiple options how to do this - you could use `camel-amqp` component, or `camel-jms` with `qpid` library on the classpath. Trouble is, `camel-amqp` is not yet fully supported at the time of writing this lab (12/2022) and `camel-jms` forces you to set up a ConnectionFactory bean manually, via code. While this is possible in camel-k, it doesn't create the best possible developer experience. Generally speaking, when working with (custom) beans is something which your integration heavily relies on, it should prompt you to re-think the design and decide, whether Camel on Quarkus wouldn't be more suitable option as it offers _most_ flexibility. There is no _single_ right answer, single ConnectionFactory bean certainly doesn't disqualify usage of camel-k, but it's good to be aware of all the options.
 
@@ -64,7 +67,7 @@ Throughout this lab, we will be developing a very simple integration which will 
     - `kamelet:<kamelet-name>?kameletOption=kameletValue`. Use following values:
      - destination type - `topic`
      - destionation name - `userN-dev` (replace `N` with appropriate number)
-     - remoteURI - `amqp://localhost:5672`
+     - remoteURI - `amqp://artemis-service:5672`
    - Run the `ArtemisIntegration.java` again, you should see following in the logs:
 
     
