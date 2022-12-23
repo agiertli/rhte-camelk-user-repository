@@ -14,10 +14,10 @@ bindings:
      properties:
       destinationName: group2-dev
       destinationType: topic
-      remoteURI: "{{secret:artemis-credentials-secret/broker-url}}"
-      username:  "{{secret:artemis-credentials-secret/username}}"
-      password:  "{{secret:artemis-credentials-secret/password}}"
-      trustStorePassword: "{{secret:artemis-credentials-secret/trustStorePassword}}"
+      password: "{{amqp.password}}"
+      remoteURI:  "{{amqp.broker-url}}"
+      trustStorePassword: "{{amqp.trustStorePassword}}"
+      username: "{{amqp.username}}"
 
  - name: rhte-camelk.group1.to.log
    secret: artemis-credentials-secret
@@ -27,10 +27,10 @@ bindings:
      properties:
       destinationName: group1-dev
       destinationType: topic
-      remoteURI: "{{secret:artemis-credentials-secret/broker-url}}"
-      username:  "{{secret:artemis-credentials-secret/username}}"
-      password:  "{{secret:artemis-credentials-secret/password}}"
-      trustStorePassword: "{{secret:artemis-credentials-secret/trustStorePassword}}"                    
+      password: "{{amqp.password}}"
+      remoteURI:  "{{amqp.broker-url}}"
+      trustStorePassword: "{{amqp.trustStorePassword}}"
+      username: "{{amqp.username}}"                  
    sink:
      kamelet: log-sink
      properties:
