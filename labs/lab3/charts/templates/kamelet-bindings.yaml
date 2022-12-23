@@ -17,17 +17,16 @@ spec:
           requestCPU: {{ .cpuRequest | default "50m" }}
           limitMemory: {{ .memoryLimit | default "1024Mi" }}
           requestMemory: {{ .memoryRequest | default "512Mi" }}
-    configuration:
-      {{ if .secret}}
-     - type: "secret"
-       value: {{ .secret }}
-       {{ end }}
-     {{ if .sslSecret }}
-     - type: "secret"
-       value: {{ .sslSecret }}
-       resourceType: data
-       resourceMountPoint: {{ .sslMountPath | default "/etc/ssl/certificates" }}
-     {{ end }}
+      mount:
+        {{ if .sslSecret }}
+        resources:
+          - 'secret:{{ .sslSecret }}@{{ .sslMountPath | default "/etc/ssl/certificates" }}' 
+        {{ end }}
+
+        {{ if .secret }}
+        configs:
+          - 'secret:{{ .secret }}'
+        {{ end }}    
   source:
     ref:
       kind: Kamelet
