@@ -332,7 +332,7 @@ spec:
       - name: filename
         value: labs/lab4/KamelPromoteIntegrationArtemis.java
       - name: namespace
-        value: user3-dev
+        value: user1-dev
       - name: config
         value: --config configmap:artemis-config --config secret:artemis-credentials-secret --resource secret:my-artemis-secret@/etc/ssl/jms-sink  
   # Promote to production
@@ -347,7 +347,7 @@ spec:
       - name: integration-name
         value: $(tasks.kamel-run.results.integration-name)
       - name: namespace
-        value: user3-dev
+        value: user1-dev
       - name: to
-        value: user3-prod
+        value: user1-prod
           

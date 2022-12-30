@@ -1,5 +1,5 @@
-PROD=user3-prod
-DEV=user3-dev
+PROD=user1-prod
+DEV=user1-dev
 
 echo "Creating Custom JMS AMQP Sink Kamelet in $DEV"
 oc apply -f custom-jms-amqp-sink.yaml -n $DEV

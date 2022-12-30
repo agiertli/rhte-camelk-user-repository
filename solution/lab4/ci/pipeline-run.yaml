@@ -27,4 +27,4 @@ spec:
   - name: repo-url
     value: https://github.com/agiertli/rhte-camelk-user-repository.git
   - name: repo-branch
-    value: joao  
+    value: main  
