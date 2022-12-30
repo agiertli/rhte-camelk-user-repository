@@ -447,8 +447,46 @@ In real world pipeline there would be some integration and smoke tests as well, 
 `kamel promote` simplifies the promotion of the camel-k styled integration to higher environments. It ensures immutability principles by reusing the same container images between different environments. It also simplifies the configuration - it's smart enough to understand what configuration (config maps, secrets) were part of the source integration so we don't have to explicitly state it anymore when promoting to higher environment. What it lacks is the better integration with GitOps styled deployments. The [issue](https://github.com/apache/camel-k/issues/3888) has been raised to improve this behaviour.
 
 # Lab 5 - GitOps styled Continuos Delivery
-TODO: ArgoCD app
+TODO: ArgoCD 
 
+## Intro
+Now that we have `Tekton` taking care of our pipeline, the missing piece is GitOps with `ArgoCD`, keeping our OCP objects __immutable__
+
+And since we are at it, we will introduce `sealed secrets` as a way to store our secrets in Git and let `ArgoCD` take care of their OCP creation.
+
+<br/>
+
+## Tasks
+
+__1. Create Sealed Secrets__ 
+
+- Checkout to dev branch
+
+- Generate secrets and apply kubeseal locally
+  ```
+  cd utils
+  
+  ./create-secrets.sh
+  ```
+
+- Move generated sealed secrets to `secrets/dev` folder
+
+<br/>
+
+__2. Create DEV integrations__  ??
+
+
+<br/>
+
+__3. Create PROD integrations__
+
+- Create new release branch (based on master)
+  ```
+  git checkout -b feature/prod-release
+  ```
+
+- Change prod/values.yaml
+- Create a PR against a main
 
 # Known issues
 
