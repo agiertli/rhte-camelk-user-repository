@@ -1,4 +1,4 @@
-userNamespace: user1-prod
+userNamespace: user3-prod
 bindings:
  - name: rhte-camelk.group1.to.group2
    secret: artemis-credentials-secret

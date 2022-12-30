@@ -10,7 +10,7 @@ Let's get down to it, and most importantly, let's have some fun!
 
 <br/>
 
-# Lab Goals as
+# Lab Goals
 
 The primary goal of this lab is to **_enable Red Hat consultants and architects to deliver camel-k projects for our customers beyond the demo scope_**. 
 
@@ -208,110 +208,229 @@ __1. Support basic authentication against Artemis broker__
 
 __2. Add one-way ssl__
 
-When you check the `dependencies` section of the `jms-amqp-10-sink` kamelet, you will notice that it's based on the QPID client. QPID allows to specify most of the client properties directly inside the Connection URI, see [official documentation](https://qpid.apache.org/releases/qpid-jms-1.7.0/docs/index.html) for more details. At the very least, we need to supply URL as follows:
+When you check the `dependencies` section of the `jms-amqp-10-sink` kamelet, you will notice that it's based on the QPID client. QPID allows to specify most of the client properties directly inside the Connection URI, see [official documentation](https://qpid.apache.org/releases/qpid-jms-1.7.0/docs/index.html) for more details. At the very least, we need to supply the URL as follows:
 
 `amqps://host:port?transport.trustStoreLocation=/path/to/client/truststore&transport.trustStorePassword=truststorePassword!&transport.verifyHost=false`
 
-Unfortunately it's not so straightforward to pass this value in a camel-k. Any query parameter inside remoteURI will be treated as a kamelet property (and not remoteURI query parameter). In our case it would mean that `truststorePassword` would not be passed to the underlying ConnectionFactory (you are free to try this out;)). Potential solution could be to use [RAW](https://camel.apache.org/manual/faq/how-do-i-configure-endpoints.html) feature of Camel and pass our remoteURI value as RAW(remoteURI). Unfortunately RAW [doesn't seem to work](https://github.com/apache/camel-kamelets/issues/1200) in camel-k 1.8 operator version. So we need to get a bit more creative..:
+Unfortunately it's not so straightforward to pass this value in a camel-k integration. Any query parameter inside remoteURI will be treated as a kamelet property (and not a remoteURI query parameter). 
+
+In our case it would mean that `truststorePassword` would not be passed to the underlying ConnectionFactory (you are free to try this out;)). 
+
+__Potential solution__ could be to use [RAW](https://camel.apache.org/manual/faq/how-do-i-configure-endpoints.html) feature of Camel and pass our remoteURI value as RAW(remoteURI). Unfortunately RAW [doesn't seem to work](https://github.com/apache/camel-kamelets/issues/1200) in the camel-k 1.8 operator version. 
+
+<br/>
+
+So we need to get a bit more creative...:
 
  - Add three more Kamelet parameters:
    - verifyHost (type: string, default:false)
    - trustStoreLocation (type:string)
    - trustStorePassword (type:string)
  - Change the way `remoteURI` is defined in Kamelet definition:
-
-    - 
     ```      
-              - key: remoteURI
-              value: '{{remoteURI}}?transport.trustStoreLocation={{trustStoreLocation}}&transport.trustStorePassword={{trustStorePassword}}&transport.verifyHost={{verifyHost}}'
+    - key: remoteURI
+    value: '{{remoteURI}}?transport.trustStoreLocation={{trustStoreLocation}}&transport.trustStorePassword={{trustStorePassword}}&transport.verifyHost={{verifyHost}}'
     ``` 
 
 By defining the remoteURI query parameters directly in the Kamelet definition, we will bypass camel property parser which was causing the `trustStorePassword` param to "be lost".  
- 
-The final step before we attempt to run this new ssl-based integration is to inject the client truststore into the integration pod - see file `client.ts` in your user git repository.  First, you need to create secret based on the contents of this file. `kamel` binary allows us to reference a secret and mount it to a specified location using `--resource secret:secretName@/where/you/want/to/mount/it` syntax. See [documentation](https://camel.apache.org/camel-k/1.10.x/configuration/runtime-resources.html) for more details. Consider mounting it somewhere under `/etc`.
 
-Here are the new parameter values you need to update in your `ArtemisIntegration.java`:
- - URI scheme is now `amqps` (as opposed amqp)
- - Get the new _ssl_ service name from `tooling` namespace - beware, the port is also different!
- - trustStorePassword is `password1!`
+<br/>
+ 
+Do not forget you need to __inject a client truststore__ into the integration pod:
+
+- See file `client.ts` in your user git repository.  
+- Create a secret based on the contents of this file. 
+- `kamel` binary allows us to reference a secret and mount it to a specified location - mount it somewhere under `/etc`
+  ```
+  --resource secret:secretName@/where/you/want/to/mount/it
+  
+  See [documentation](https://camel.apache.org/camel-k/1.10.x/configuration/runtime-resources.html) for more details.
+  ``` 
+
+Update your `ArtemisIntegration.java`:
+- URI scheme is now `amqps` (as opposed amqp)
+- Get the new _ssl_ service name from `tooling` namespace - beware, the port is also different!
+- trustStorePassword is `password1!`
 - trustStoreLocation should match whatever you passed via `kamel run --resource ..`
 
-### Summary
+## Summary
 In this lab we focused on customizing the Kamelets. This is a fundamental feature of the Kamelets and it allows you to unlock the full potential of them.  More often than not you will encounter requirements at your own customers which will make out of the box Kamelets not suitable. You can either raise an RFE and wait months for it to be delivered or fix it yourself - and now you should know how.
 
-## Lab 3 - KameletBinding evolution
+# Lab 3 - KameletBinding evolution
 
-### Intro
+## Intro
 
-So far we have been developing our integrations in Java. There are other DSL out there (such as groovy, javascript, and even yaml) but development of such Integration is still fairly technical task and it requires camel knowledge. However with well designed (reusable, configurable) Kamelets it's possible to deploy an integration using slightly different way - by utilizing `KameletBinding`. As the name suggests, it's a OpenShift custom resource which allows you to bind source/sink kamelets (or camel components) in declarative way. This opens a new possibilities for camel-k. KameletBindings enables non-camel experts to deploy and configure Integration. This doesn't mean using of camel-k doesn't require deep technical and integration knowledge - somebody _still_ has to develop and maintain the Kamelets, but once that is done, the adoption of KameletBinding (especially when combined with templating engine such as `helm`) will be very straightfoward. It has another advantages - the fact it's a OpenShift CR means we don't have to deal with `kamel` cli anymore to run an integration. We can directly apply the file on OpenShift and it will result into running Integration. This also greatly fits into today's GitOps ways of working.
+So far we have been developing our integrations in Java. There are other DSL out there (such as groovy, javascript, and even yaml) but development of such Integrations is still a fairly technical task and it requires camel knowledge. However with well designed (reusable, configurable) Kamelets it's possible to deploy an integration using a slightly different way - by utilizing `KameletBinding`. 
 
+As the name suggests, it's a OpenShift custom resource which allows you to bind source/sink kamelets (or camel components) in a declarative way. This opens new possibilities for camel-k. __KameletBindings__ enable non-camel experts to deploy and configure Integrations. 
 
-### Task
+This doesn't mean usage of camel-k doesn't require deep technical and integration knowledge - somebody _still_ has to develop and maintain the Kamelets, but once that is done, the adoption of __KameletBindings__ (especially when combined with a templating engine such as `helm`) will be very straightfoward. 
 
-In this lab we will turn our Java based integration in the Kamelet Binding. We will use `helm` to generate multiple Kamelet Bindings with ease. We will generate N bindings (where N is number of groups-1) to generate messages for every group in this lab. Then we will add one more binding which will simply read all the messages you as a group received. The output of the helm chart should produce this:
+It has another advantages - the fact it's a OpenShift CR means we don't have to deal with `kamel` cli anymore to run an integration. We can directly apply the file on OpenShift and it will result into running Integration. This also greatly fits into today's GitOps ways of working.
+
+<br/>
+
+## Task
+
+In this lab we will:
+- Turn our Java based integration into a Kamelet Binding. 
+- Use `helm` to generate multiple Kamelet Bindings with ease. 
+- Generate N bindings (where N is number of groups-1) to generate messages for every group in this lab. 
+- Add one more binding which will simply read all the messages you as a group received. 
+
+<br/>
+
+The output of the helm chart should produce this:
 
 ![Helm chart design for Group1](helm-chart-design.svg "Helm Chart design for Group1")
 
-The actual helm templates were already developed for you, as it would be too time consuming to cover it as part of this lab. While helm and KameletBindings go really well together - because it's really easy to template the bindings, Kamelets also heavily depends on using `{{ camel-k-placeholders }}` which conflicts with `{{ helm-placeholders }}`, so figuring out the syntax is a major PITA.
+__The actual helm templates were already developed for you.__
 
-First, let's start by secret provisioning. If you finished previous lab, you should already have secret containing `client.ts` available in `userN-dev` namespace. If not, make sure to create it now, i.e.: 
+While helm and KameletBindings go really well together - because it's really easy to template the bindings, Kamelets also heavily depend on using `{{ camel-k-placeholders }}` which conflicts with `{{ helm-placeholders }}`, so figuring out the syntax is a major PITA.
 
-`oc create secret generic my-artemis-secret --from-file=client.ts`
+__1. Create Secrets__
 
-We will need one more secret though - previously, our Java integration contained some hardcoded values with sensitive information (such as broker credentials). This is of course not feasible in beyond demo scenario! Let's create _another_ secret which will contain:
+- First, let's start by secret provisioning. If you finished previous lab, you should already have secret containing `client.ts` available in `userN-dev` namespace. If not, make sure to create it now, i.e.: 
 
- - broker username (admin)
- - broker password (password1!)
- - broker connection url (we will be using `amqps` url from previous lab)
- - truststore password (password1!)
+  ```
+  oc create secret generic my-artemis-secret --from-file=client.ts
+  ```
 
- You can use `utils/create-secrets.sh` and `utils/artemis-secret.yaml` to assist with this task.
+<br/>
 
-Next, go and explore `charts/templates` - that's where all the magic happens. We are defining few custom Kamelets (based on the work from previous labs), but most importantly we are templating the creation of Kamelet Bindings. Understand how _binary_ (vs "normal") secrets are handled. We are also using [traits](https://camel.apache.org/camel-k/1.8.x/traits/traits.html) which is a camel-k feature which allows us to enable additional super powers on top of our integrations. Usage of `Container` trait is almost inevitable in OCP environment. If you study `kamelet-bindings.yaml` you will notice it is completely generic and supports _any_ two Kamelets and _any_ properties.
+- Add one more secret - previously, our Java integration contained some hardcoded values with sensitive information (such as broker credentials). This is of course not feasible in beyond demo scenario! Let's create _another_ secret which will contain:
 
-This is a very powerful concept as you can use this as a base template to define integrations for many different systems. However, if this was a real-world scenario, this helm chart wouldn't be so useful without the accompanying documentation. The only way how to make the consumption of such helm chart easy, is to make sure its consumers can focus on just supplying helm values, and not to deal with the underlying templates (which are still fairly complex and technical).
+  - broker username (admin)
+  - broker password (password1!)
+  - broker connection url (we will be using `amqps` url from previous lab)
+  - truststore password (password1!)
 
-
-Final task is to change `dev/values.yaml` in such a way that will create the appropriate bindings as per the Helm Diagram screenshot. There are scripts ready for you in `utils` to test the helm chart. The result should look similar to this:
-
+__You can use `utils/create-secrets.sh` and `utils/artemis-secret.yaml` to assist with this task.__
 
 ```
-oc get klb -n user1-dev
-NAME                           PHASE   REPLICAS
-rhte-camelk.group1.to.group2   Ready   1
-rhte-camelk.group1.to.group3   Ready   1
-rhte-camelk.group1.to.group4   Ready   1
-rhte-camelk.group1.to.group5   Ready   1
-rhte-camelk.group1.to.group6   Ready   1
-rhte-camelk.group1.to.group7   Ready   1
-rhte-camelk.group1.to.log      Ready   1
+cd lab3/charts/utils
+./create-secrets.sh
 ```
 
-The number of "groupN.to.groupM" bindings can differ based on the number of actual groups present in the lab. Don't forget to check the integration logs to make sure there are no errors. You can use `kamel get` and `kamel log`, or plain `oc`. 
+<br/>
 
-### Summary
+__2. Helm + Kamel = 💪__
+
+- Explore `charts/templates` - that's where all the magic happens. We are defining a few custom Kamelets, but most importantly we are templating the creation of Kamelet Bindings. 
+  - Understand how _binary_ (vs "normal") secrets are handled. 
+  - We are also using [traits](https://camel.apache.org/camel-k/1.8.x/traits/traits.html) which is a camel-k feature which allows us to enable additional super powers on top of our integrations. Usage of the `Container` trait is almost inevitable in OCP environment. 
+  - If you study `kamelet-bindings.yaml` you will notice it is completely generic and supports _any_ two Kamelets and _any_ properties.
+
+  <br/>
+
+  This is a very powerful concept as you can use this as a base template to define integrations for many different systems. However, if this was a real-world scenario, this helm chart wouldn't be so useful without the accompanying documentation. The only way how to make the consumption of such helm chart easy, is to make sure its consumers can focus on just supplying helm values, and not to deal with the underlying templates (which are still fairly complex and technical).
+
+  <br/>
+
+
+- Change `dev/values.yaml` in such a way that will create the appropriate bindings as per the Helm Diagram screenshot. There are scripts ready for you in `utils` to test the helm chart. 
+
+  ```
+  cd lab3/charts
+  ./utils/install.sh
+  ```
+
+  The result should look similar to this:
+
+
+  ```
+  oc get klb -n user1-dev
+  NAME                           PHASE   REPLICAS
+  rhte-camelk.group1.to.group2   Ready   1
+  rhte-camelk.group1.to.group3   Ready   1
+  rhte-camelk.group1.to.group4   Ready   1
+  rhte-camelk.group1.to.group5   Ready   1
+  rhte-camelk.group1.to.group6   Ready   1
+  rhte-camelk.group1.to.group7   Ready   1
+  rhte-camelk.group1.to.log      Ready   1
+  ```
+
+  The number of "groupN.to.groupM" bindings can differ based on the number of actual groups present in the lab. Don't forget to check the integration logs to make sure there are no errors. You can use `kamel get` and `kamel log`, or plain `oc`. 
+
+<br/>
+
+## Summary
 We showcased how `helm` can be easily used to generate KameletBindings. This combination allow easier consumption of camel-k styled integration, as all it requires is a documentation of `helm` value files.  We also showed how to inject configuration and sensitive data into the bindings and also scratched the surface on the `traits`.
 
-## Lab 4 - Traditional CI/CD
+# Lab 4 - Traditional CI/CD
 
-### Intro
-There are multiple challenges when it comes to CI/CD of the camel-k based projects. You will likely find out at your customers that their traditional CI/CD implementations will not be suitable to build, test and promote the camel-k integration. Another challenge is less subtle and will only surface when you start looking under the hood of the integration lifecycle. How do you ensure that the camel-k integration in dev and prod will be based on the _same_ container image? This has been historically very hard to achieve and it changed only recently with the arrival of the `kamel promote` feature which we are going to explore in Lab 4.
+## Intro
+There are multiple challenges when it comes to CI/CD of the camel-k based projects. 
 
-### Tasks
+You will likely find out at your customers that their traditional CI/CD implementations will not be suitable to build, test and promote the camel-k integration. 
+
+Another challenge is less subtle and will only surface when you start looking under the hood of the integration lifecycle:
+
+__How do you ensure that the camel-k integration in dev and prod will be based on the _same_ container image?__ 
+
+This has been historically very hard to achieve and it changed only recently with the arrival of the `kamel promote` feature which we are going to explore in Lab 4.
+
+<br/>
+
+## Tasks
+
+__1. Investigate immutability principles__
 
 We'll start by inspecting the immutability principles which are by default violated when using `kamel run`. 
 
- - Delete IntegrationKit from `userN-dev` and `userN-prod`. You can do this by using `oc delete ik` or `kamel reset --namespace <MY_NAMESPACE>`
+ - Delete IntegrationKit from `userN-dev` and `userN-prod`. 
+    ```
+    oc delete ik 
+    
+    or 
+    
+    kamel reset --namespace <MY_NAMESPACE>
+    ```
+
  - Start the example Integration which is provided in the lab directory in dev namespace:
-   - `kamel run MutableIntegration.java --namespace userN-dev`
- - Execute `oc get it mutable-integration` command and find out what IntegrationKit is your integration using
- - Execute `oc get ik <INTEGRATION_KIT_NAME_FROM_PREVIOUS_STEP>` and note down the name of the container image
- - Now manually deploy the integration into the production namespace `kamel run MutableIntegration.java --namespace userN-prod` and repeat the procedure.
+    ```
+    kamel run MutableIntegration.java --namespace userN-dev
+    ```
+
+ - Find out what IntegrationKit is your integration using and note down the name of the container image
+    ```
+    oc get it mutable-integration
+
+    oc get ik <INTEGRATION_KIT_NAME_FROM_PREVIOUS_STEP>`
+    ```
+
+ - Manually deploy the integration into the production namespace and repeat the procedure.
+    ```
+    kamel run MutableIntegration.java --namespace userN-prod
+    ```
+
  - Are the container images same or not?
 
- Let's examine what happened. We are running two separate Namespace-scoped installation of camel-k operator, which are completely independent. By default, there is no way for camel-k operator to know it should re-use the existing IntegrationKit (or its container image), so it will initiate a completely new build, thus violating immutability principles. If you'd be running global operator installation, this _could_ potentially work - but if you delete the IntegrationKit in between the integration promotion you would arrive at the same outcome. And the same outcome would happen if you'd be doing integration promotion across clusters.
+<br/>
 
- Now let's see how we can use `kamel promote` to overcome this problem. Most of the resources are already provided for you, you just need to fill in the blanks. We have prepared a Tekton pipeline for you which fetches the gitea repo, runs the camel-k integration and then promotes it to production by utilizing `kamel promote`. In real world pipeline there would be some integration and smoke tests as well, but this is beyond the scope of this lab.
+Let's examine what happened:
+
+We are running two separate `Namespace-scoped` installations of camel-k operator, which are completely independent. 
+
+By default, there is no way for the camel-k operator to know it should re-use the existing `IntegrationKit` (or its container image), so it will initiate a completely new build, thus violating immutability principles. 
+
+If you'd be running a global operator installation, this _could_ potentially work - but if you delete the IntegrationKit in between the integration promotion you would arrive at the same outcome. And the same outcome would happen if you'd be doing integration promotion across clusters.
+
+<br/>
+
+__2. Fix immutability__
+
+
+Now let's see how we can use `kamel promote` to overcome this problem. 
+
+Most of the resources are already provided for you, you just need to fill in the blanks. 
+
+We have prepared a `Tekton pipeline` for you which:
+- fetches the gitea repo
+- runs the camel-k integration
+- promotes it to production by utilizing `kamel promote`
+
+In real world pipeline there would be some integration and smoke tests as well, but this is beyond the scope of this lab.
 
   - Examine `create-resources.sh` script and change it as needed. This will create the resources Integration. Note that we _must_ precreate these in advance of running `kamel promote` operation in the target (production) namespace as well. In real scenario these would be populated by the pipeline or via GitOps. 
   - Inspect `pipeline.yaml` and understand what it does.
@@ -321,11 +440,13 @@ We'll start by inspecting the immutability principles which are by default viola
   - Apply `pipeline.yaml` and `pipeline-run.yaml` onto your OCP cluster. You can inspect the Tekton pipelines also via OpenShift console
   - Troubleshoot any potential issues and verify whether the container images are the same for both, dev and prod integration
 
-### Summary
+<br/>
+
+## Summary
 
 `kamel promote` simplifies the promotion of the camel-k styled integration to higher environments. It ensures immutability principles by reusing the same container images between different environments. It also simplifies the configuration - it's smart enough to understand what configuration (config maps, secrets) were part of the source integration so we don't have to explicitly state it anymore when promoting to higher environment. What it lacks is the better integration with GitOps styled deployments. The [issue](https://github.com/apache/camel-k/issues/3888) has been raised to improve this behaviour.
 
-## Lab 5 - GitOps styled Continuos Delivery
+# Lab 5 - GitOps styled Continuos Delivery
 TODO: ArgoCD app
 
 

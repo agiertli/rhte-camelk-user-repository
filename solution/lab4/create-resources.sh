@@ -1,5 +1,5 @@
-PROD=user1-prod
-DEV=user1-dev
+PROD=user3-prod
+DEV=user3-dev
 
 echo "Creating Custom JMS AMQP Sink Kamelet in $DEV"
 oc apply -f custom-jms-amqp-sink.yaml -n $DEV
@@ -40,9 +40,9 @@ oc process -f artemis-secret.yaml \
 | oc apply -f - -n $PROD
 
 echo "Creating Integration Platform in $DEV"
-oc apply -f ip.yaml -n $DEV
+oc apply -f ci/ip.yaml -n $DEV
 echo "Creating Integration Platform in $PROD"
-oc apply -f ip.yaml -n $PROD
+oc apply -f ci/ip.yaml -n $PROD
 
 echo "Creating artemis truststore secret in $DEV"
 oc create secret generic client-truststore --from-file=client.ts -n $DEV

@@ -10,7 +10,6 @@ metadata:
     camel.apache.org/kamelet.type: sink
     camel.apache.org/requires.runtime: camel-k
   name: custom-jms-amqp-10-sink
-  namespace: user1-dev
 spec:
   definition:
     description: A Kamelet that can produce events to any AMQP 1.0 compliant message
@@ -49,7 +48,7 @@ spec:
   dependencies:
   - camel:jms
   - camel:kamelet
-  - mvn:org.apache.qpid:qpid-jms-client:0.55.0.redhat-00008
+  - mvn:org.apache.qpid:qpid-jms-client:1.0.0
   template:
     beans:
     - name: connectionFactoryBean
