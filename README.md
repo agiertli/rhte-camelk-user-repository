@@ -243,4 +243,29 @@ We'll start by inspecting the immutability principles which are by default viola
 `kamel promote` simplifies the promotion of the camel-k styled integration to higher environments. It ensures immutability principles by reusing the same container images between different environments. It also simplifies the configuration - it's smart enough to understand what configuration (config maps, secrets) were part of the source integration so we don't have to explicitly state it anymore when promoting to higher environment. What it lacks is the better integration with GitOps styled deployments. The [issue](https://github.com/apache/camel-k/issues/3888) has been raised to improve this behaviour.
 
 ## Lab 5 - GitOps styled Continuos Delivery
-TODO: ArgoCD app
+
+### Intro
+
+In this lab we are going to deploy our Integrations using GitOps approach. We will explore helm and ArgoCD integration, sealed secrets and also promotion process between `dev` and `prod` environment.
+
+### Tasks
+
+1) Checkout to `main` branch of your user git repository and switch context to `userN-dev` openshift project. 
+2) Execute `labs/lab5/utils/create-secrets.sh` script to generate Sealed secrets. Move the generated yaml files to `labs/lab5/secrets/dev` folder.
+3) Change context to `userN-prod` openshift project and execute the same script again. This time, move the generated files to `labs/lab5/secrets/prod`.
+4) Make sure to delete any generated yaml files from the `utils` folder. Commit and push your changes.
+
+The `create-secrets.sh` script is using `kubeseal` cli to communicate with the SealedSecret controller in order to seal your secrets. The generated secrets are encrypted and can be safely stored to the git repository since they can't be decrypted without the private key, which is owned by the SealedSecrets controller. Each user has 4 different Argo applications created for them, you can find more about these by executing:
+`oc get application -n openshift-gitops | grep user1-`
+
+Once you push the sealed secrets to your git repository, ArgoCD will apply them to the desired namespace and SealedSecret controller will turn the SealedSecret into regular openshift secret, which can be finally used by our camel-k integrations.
+
+5) Verify everything went well:
+ ```bash
+ oc get sealedsecret
+ oc get secret <NAME OF THE SECRET>
+ ```
+
+ 6) Checkout the `dev` branch
+
+### Summary
