@@ -84,8 +84,8 @@ Inside your workspace IDE, there is already artemis container up and running wit
 
 Red Hat ships many kamelets with the camel-k operator out of the box:
 ```
-$  oc get kamelet -n tooling | wc -l
-      82
+$  oc get kamelet -n userN-dev | wc -l
+      203
 ```
 
 Kamelets are not as flexible as the camel components which they are based on. If the underlying camel component supports hundreds of parameters, but corresponding kamelet only expose couple, chances are, the out of the box kamelet will not be directly useful at your customer or for your use case.
@@ -100,7 +100,7 @@ First, let's take a look at how we can support basic(username+password) authenti
 
 
  - Inspect the out of the box kamelet to understand its internal mechanics:
-   - `oc get kamelet jms-amqp-10-sink -n tooling -o yaml | oc neat > custom-sink-kamelet.yaml`
+   - `oc get kamelet jms-amqp-10-sink -n userN-dev -o yaml | oc neat > custom-sink-kamelet.yaml`
  - Inspect the [ConnectionFactory constructor](https://github.com/apache/qpid-jms/blob/main/qpid-jms-client/src/main/java/org/apache/qpid/jms/JmsConnectionFactory.java) and see whether there isn't a constructor suitable for our purposes. Consider adding new `username` and `password` kamelet properties and also new ConnectionFactory constructor parameters
  - camel-k will cleverly "guess" which ConnectionFactory constructor to call based on the number and types of the parameters. Order matters(!)
  - After applying the changes to the kamelet yaml file,  make sure to alter these two attributes as well:
@@ -114,6 +114,7 @@ First, let's take a look at how we can support basic(username+password) authenti
    - Use following credentials to connect, simply pass them as kamelet endpoint parameters:
      - `username: admin`
      - `password: password1!`
+   - Don't forget to change the Kamelet name so it points to your custom one inside your Integration  
  - Run the integration like `kamel run ArtemisIntegration.java` - notice, we are now running the integration on a cluster
  - If everything went well, you should similar output in the logs:
    ```
