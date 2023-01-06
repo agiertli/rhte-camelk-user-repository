@@ -16,7 +16,7 @@ bindings:
 #      properties:
 #       destinationNname: target_group (syntax; groupn-dev)
 #       destinationType: topic
-#       remoteuri: "{{amqp.broker-url}}"
+#       remoteURI: "{{amqp.broker-url}}"
 #       username:  "{{amqp.username}}"
 #       password:  "{{amqp.password}}"
 #       trustStorePassword: "{{amqp.trustStorePassword}}"
