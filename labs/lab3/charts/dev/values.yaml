@@ -1,22 +1,22 @@
-ready: false # // CHANGE ME to true when you are ready to start Lab3
-userNamespace: userN-dev # // CHANGE ME !!!
-# Add as many entries below as many groups you want to interact with
-# Last binding is the one which reads messages from your group topic and prints the messages in it. You need to pass property showHeaders with value true to the log kamelet(!)
+ready: false # // change me to true when you are ready to start lab3
+usernamespace: usern-dev # // change me !!!
+# add as many entries below as many groups you want to interact with
+# last binding is the one which reads messages from your group topic and prints the messages in it. you need to pass property showheaders with value true to the log kamelet(!)
 bindings:
-#  - name: RHTE_CAMELK_GROUPN_TO_GROUPM
-#    secret: NAME_OF_CREDENTIALS_SECRET
-#    sslSecret: SECRET_WITH_CLIENT.TS
+#  - name: rhte_camelk_groupn_to_groupm
+#    secret: name_of_credentials_secret
+#    sslsecret: secret_with_client.ts
 #    source:
-#     kamelet: NAME_OF_CUSTOM_TIMER_KAMELET
+#     kamelet: name_of_custom_timer_kamelet
 #     properties:
-#      groupName: NAME_OF_YOUR_GROUP
-#      message: ANY_SPECIAL_MESSAGE_TO_SHARE?
+#      groupname: name_of_your_group
+#      message: any_special_message_to_share?
 #    sink:
-#      kamelet:  NAME_OF_CUSTOM_AMQP_SINK_KAMELET
+#      kamelet:  name_of_custom_amqp_sink_kamelet
 #      properties:
-#       destinationName: TARGET_GROUP (syntax; groupN-dev)
-#       destinationType: topic
-#       remoteURI: "{{amqp.broker-url}}"
+#       destinationname: target_group (syntax; groupn-dev)
+#       destinationtype: topic
+#       remoteuri: "{{amqp.broker-url}}"
 #       username:  "{{amqp.username}}"
 #       password:  "{{amqp.password}}"
-#       trustStorePassword: "{{amqp.trustStorePassword}}"
+#       truststorepassword: "{{amqp.truststorepassword}}"
