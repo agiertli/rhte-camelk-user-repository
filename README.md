@@ -47,7 +47,7 @@ Test the `camel/jbang` cli tooling to understand how the local development exper
 Throughout this lab, we will be developing a very simple integration which will talk to an Artemis broker. Since we are still in the early stages of development, we will use an artemis instance and then we will change our `ArtemisIntegration` so it will talk to the broker instance.
 
 
-With Dev Spaces, we have the spun up a artemis pod to use with the following params:
+Inside your workspace IDE, there is already artemis container up and running with following characteristics:
    - `AMQ_USER=admin`
    - `AMQ_PASSWORD=password1!`
    - Access to the artemis pod with dev spaces is done using `artemis-amqp-service`. 
@@ -65,7 +65,7 @@ With Dev Spaces, we have the spun up a artemis pod to use with the following par
     - `kamelet:<kamelet-name>?kameletOption=kameletValue`. Use following values:
      - destination type - `topic`
      - destionation name - `userN-dev` (replace `N` with appropriate number)
-     - remoteURI - `amqp://artemis-service:5672`
+     - remoteURI - `amqp://artemis-amqp-service:5672`
    - Run the `ArtemisIntegration.java` again, you should see following in the logs:
 
     
