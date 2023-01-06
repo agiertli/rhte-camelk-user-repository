@@ -57,7 +57,7 @@ With Dev Spaces, we have the spun up a artemis pod to use with the following par
 
  Instead of implementing our custom ConnectionFactory bean, we will be using `Kamelet`. Kamelets are additional layer of abstraction of camel components. They are hiding the camel component complexity and exposing strict interface to its consumers. Their consumption doesn't require deep camel knowledge - only the knowledge of the interface exposed by the particular Kamelet. They are also built for cloud native deployment, so the transition from locally running route using `camel` to fully fledged `camel-k` integration will be straightforward. Finish the Lab 1 by following steps below:
 
-  - Execute `camel catalog kamelets | grep amqp`  to locate  amqp compatible kamelet
+  - Execute `camel catalog kamelet | grep amqp`  to locate  amqp compatible kamelet
   - Use `camel doc <kamelet-name>` to familiarize yourself with the AMQP Sink Kamelet
   - Change the `ArtemisIntegration.java` as follows:
    - remove `;` after the `log` command and add another step in the route using `to` DSL
