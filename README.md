@@ -41,9 +41,7 @@ There are two options how to start developing camel-k integration locally withou
 ### Task
 Test the `camel/jbang` cli tooling to understand how the local development experience looks like:
  
-  - Install JBang as per https://www.jbang.dev/download/
-  - Install `camel` cli as per https://camel.apache.org/manual/camel-jbang.html
-  - Initialize `ArtemisIntegration` using `camel` cli and run it
+  - Initialize `ArtemisIntegration.java` using `camel init` command cli and run it using `camel run`
     - You should see similar output in the console log `2022-11-29 20:37:28.693  INFO 72000 --- [ - timer://java] ArtemisIntegration.java:14               : Hello Camel from java`
 
 Throughout this lab, we will be developing a very simple integration which will talk to an Artemis broker. Since we are still in the early stages of development, we will use an artemis instance and then we will change our `ArtemisIntegration` so it will talk to the broker instance.
