@@ -152,6 +152,8 @@ Here are the new parameter values you need to update in your `ArtemisIntegration
  - trustStorePassword is `password1!`
 - trustStoreLocation should match whatever you passed via `kamel run --resource ..`
 
+Once you are finished, don't forget to clean up by executing `kamel delete artemis-integration`.
+
 ### Summary
 In this lab we focused on customizing the Kamelets. This is a fundamental feature of the Kamelets and it allows you to unlock the full potential of them.  More often than not you will encounter requirements at your own customers which will make out of the box Kamelets not suitable. You can either raise an RFE and wait months for it to be delivered or fix it yourself - and now you should know how.
 
