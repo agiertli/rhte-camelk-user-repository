@@ -1,2 +1,3 @@
  .camel-jbang 
  charts/create-secrets.sh
+solution/lab1/.camel-jbang/camel-jbang-run.properties
