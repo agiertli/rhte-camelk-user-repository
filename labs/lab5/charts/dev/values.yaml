@@ -1,4 +1,4 @@
-ready: false # // CHANGE ME to true when you are ready to start Lab5
+ready: true # // CHANGE ME to true when you are ready to start Lab5
 userNamespace: userN-dev # // CHANGE ME !!!
 # Add as many entries below as many groups you want to interact with
 # Below are two working examples - please make sure to adjust names and destinationName according to your group name.
@@ -9,7 +9,7 @@ bindings:
    source:
     kamelet: timer-source-with-header
     properties:
-     groupName: group1
+     groupName: group5
      message: greetings-from-red-hat-tech-exchange
    sink:
      kamelet:  custom-jms-amqp-10-sink
