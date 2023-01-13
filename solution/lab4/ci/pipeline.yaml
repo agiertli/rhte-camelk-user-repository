@@ -334,7 +334,7 @@ spec:
       - name: namespace
         value: user1-dev
       - name: config
-        value: --config configmap:artemis-config --config secret:artemis-credentials-secret --resource secret:my-artemis-secret@/etc/ssl/jms-sink  
+        value: --config configmap:artemis-config --config secret:artemis-credentials-secret --resource secret:client-truststore@/etc/ssl/jms-sink  
   # Promote to production
   - name: kamel-promote
     runAfter: ["kamel-run"]

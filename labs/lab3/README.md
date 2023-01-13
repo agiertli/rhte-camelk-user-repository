@@ -39,8 +39,9 @@ __1. Create Secrets__
 - Let's start by secret provisioning. If you finished previous lab, you should already have secret containing `client.ts` available in `userN-dev` namespace. If not, make sure to create it now, i.e.: 
 
   ```
-  cd lab3/utils
-  oc create secret generic my-artemis-secret --from-file=client.ts
+  $ cd lab3/utils
+
+  $ oc create secret generic my-artemis-secret --from-file=client.ts
   ```
 
 <br/>
@@ -56,7 +57,7 @@ __1. Create Secrets__
 
   ```
   ## Change the values in create-secrets.sh
-  ./create-secrets.sh
+  $ ./create-secrets.sh
   ```
 
 <br/>
@@ -78,15 +79,15 @@ __2. Helm + Kamel = 💪__
 - Change `dev/values.yaml` in such a way that will create the appropriate bindings as per the Helm Diagram screenshot. There are scripts ready for you in `utils` to test the helm chart. 
 
   ```
-  oc project userN-dev
-  ./install.sh
+  $ oc project userN-dev
+  $ ./install.sh
   ```
 
   The result should look similar to this:
 
 
   ```
-  oc get klb -n userN-dev
+  $ oc get klb -n userN-dev
   NAME                           PHASE   REPLICAS
   rhte-camelk.group1.to.group2   Ready   1
   rhte-camelk.group1.to.group3   Ready   1

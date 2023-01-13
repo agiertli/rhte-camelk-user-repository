@@ -21,31 +21,37 @@ We'll start by inspecting the immutability principles which are by default viola
 
  - Delete IntegrationKit from `userN-dev` and `userN-prod`. 
     ```
-    oc delete ik 
+    $ kamel reset --namespace <MY_NAMESPACE>     (deletes everything)
     
     or 
-    
-    kamel reset --namespace <MY_NAMESPACE>
+
+    $ oc delete ik 
     ```
 
  - Start the example Integration which is provided in the lab directory in dev namespace:
-    ```
-    kamel run MutableIntegration.java --namespace userN-dev
-    ```
+   ```
+   $ cd lab4
+
+   $ kamel run MutableIntegration.java --namespace userN-dev
+
+   You should see a similar result to:
+   Unable to verify existence of operator id [camel-k] due to lack of user privileges
+   Integration "mutable-integration" created
+   ```
 
  - Find out what IntegrationKit is your integration using and note down the name of the container image
     ```
-    oc get it mutable-integration
+    $ oc get it mutable-integration
 
-    oc get ik <INTEGRATION_KIT_NAME_FROM_PREVIOUS_STEP>`
+    $ oc get ik <INTEGRATION_KIT_NAME_FROM_PREVIOUS_STEP>`
     ```
 
  - Manually deploy the integration into the production namespace and repeat the procedure.
     ```
-    kamel run MutableIntegration.java --namespace userN-prod
+    $ kamel run MutableIntegration.java --namespace userN-prod
     ```
 
- - Are the container images same or not?
+ - Are the container images in __dev__ and __prod__ the __same or not?__
 
 <br/>
 
@@ -71,18 +77,42 @@ We have prepared a `Tekton pipeline` for you which:
 - runs the camel-k integration
 - promotes it to production by utilizing `kamel promote`
 
-In real world pipeline there would be some integration and smoke tests as well, but this is beyond the scope of this lab.
+<br/>
 
-  - Examine `create-resources.sh` script and change it as needed. This will create the resources Integration. Note that we _must_ precreate these in advance of running `kamel promote` operation in the target (production) namespace as well. In real scenario these would be populated by the pipeline or via GitOps. 
+`In a real world pipeline there would be some integration and smoke tests as well, but this is beyond the scope of this lab.`
+
+<br/>
+
+
+Complete Lab4:
+  - Examine `create-resources.sh` script, `change it as needed` and `run it`
+      ```
+      $ ./create-resources.sh
+      ```
+      
+      This will create all the resources necessary for the Integration. Note that we _must_ precreate these in advance of running `kamel promote` operation in the target (production) namespace as well. In a real scenario these would be populated by the pipeline or via GitOps. 
   - Inspect `pipeline.yaml` and understand what it does.
-  - Fix the parameters of `kamel run` task (line 331-337). You need to config and mount all the required secrets and config map. Refer to [Runtime Configuration](https://camel.apache.org/camel-k/1.10.x/configuration/runtime-config.html) and [Runtime Resources](https://camel.apache.org/camel-k/1.10.x/configuration/runtime-resources.html) if you need help.
-  - Fix parameters of `kamel promote` task (line 346-352)
+      - Fix the parameters of `kamel run task` (line 331-337). 
+         
+         You need to config and mount all the required secrets and config maps. 
+         
+         Refer to [Runtime Configuration](https://camel.apache.org/camel-k/1.10.x/configuration/runtime-config.html) and [Runtime Resources](https://camel.apache.org/camel-k/1.10.x/configuration/runtime-resources.html) if you need help.
+      - Fix parameters of `kamel promote task` (line 346-352)
   - Inspect `pipeline-run.yaml` and fix the git repo url at line 28
   - Apply `pipeline.yaml` and `pipeline-run.yaml` onto your OCP cluster. You can inspect the Tekton pipelines also via OpenShift console
+      ```
+      $ oc apply -f pipeline.yaml -n userN-dev
+
+      $ oc apply -f pipeline-run.yaml -n userN-dev
+      ```
   - Troubleshoot any potential issues and verify whether the container images are the same for both, dev and prod integration
 
 <br/>
 
 ## Summary
 
-`kamel promote` simplifies the promotion of the camel-k styled integration to higher environments. It ensures immutability principles by reusing the same container images between different environments. It also simplifies the configuration - it's smart enough to understand what configuration (config maps, secrets) were part of the source integration so we don't have to explicitly state it anymore when promoting to higher environment. What it lacks is the better integration with GitOps styled deployments. The [issue](https://github.com/apache/camel-k/issues/3888) has been raised to improve this behaviour.
+`kamel promote` simplifies the promotion of the camel-k integrations to higher environments. 
+
+It ensures immutability principles by reusing the same container images between different environments. It also simplifies the configuration - it's smart enough to understand what configuration (config maps, secrets) were part of the source integration so we don't have to explicitly state it anymore when promoting to higher environment. 
+
+What it lacks is the better integration with GitOps styled deployments. The [issue](https://github.com/apache/camel-k/issues/3888) has been raised to improve this behaviour.

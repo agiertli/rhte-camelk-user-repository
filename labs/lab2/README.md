@@ -25,11 +25,11 @@ __1. Support basic authentication against Artemis broker__
 
  - Inspect the out of the box kamelet to understand its internal mechanics:
    ```
-   oc project userN-dev
+   $ oc project userN-dev
 
-   cd basic-auth
+   $ cd basic-auth
 
-   oc get kamelet jms-amqp-10-sink -o yaml | oc neat > custom-sink-kamelet.yaml
+   $ oc get kamelet jms-amqp-10-sink -o yaml | oc neat > custom-sink-kamelet.yaml
    ```
  - Inspect the [ConnectionFactory constructor](https://github.com/apache/qpid-jms/blob/main/qpid-jms-client/src/main/java/org/apache/qpid/jms/JmsConnectionFactory.java) and see whether there is a constructor suitable for our purposes. Consider adding new `username` and `password` kamelet properties and also new ConnectionFactory constructor parameters
  - camel-k will cleverly "guess" which ConnectionFactory constructor to call based on the number and types of the parameters. `Order matters(!)`
@@ -38,12 +38,12 @@ __1. Support basic authentication against Artemis broker__
    - `name: custom-jms-amqp-10-sink`
  - Apply the custom kamelet in your namespace, i.e. 
     ```
-    oc apply -f custom-sink-kamelet.yaml
+    $ oc apply -f custom-sink-kamelet.yaml
     ```
  - Test your kamelet by changing `ArtemisIntegration.java` to connect to the Artemis Broker running on OCP
    - You can find out the Broker service url like this:
       ```
-      oc get svc -n tooling | grep artemis-no-ssl
+      $ oc get svc -n tooling | grep artemis-no-ssl
       ```
    - TIP: Correct syntax to call services outside of current namespace is `<service>.<pod_namespace>.svc.cluster.local`
    - Use following credentials to connect, simply pass them as kamelet endpoint parameters:
@@ -51,7 +51,7 @@ __1. Support basic authentication against Artemis broker__
      - `password: password1!`
  - Run the integration - notice, we are now running the integration on a cluster (hence kamel cli)
     ```
-    kamel run ArtemisIntegration.java
+    $ kamel run ArtemisIntegration.java
     ```
  - If everything went well, you should similar output in the logs in the started pod in your namespace:
    ```
@@ -95,9 +95,9 @@ Do not forget you need to __inject a client truststore__ into the integration po
 - See file `client.ts` in your user git repository.  
 - Create a secret based on the contents of this file.
   ```
-  cd ssl
+  $ cd ssl
 
-  oc create secret generic my-artemis-secret --from-file=client.ts
+  $ oc create secret generic my-artemis-secret --from-file=client.ts
   ``` 
 - `kamel` binary allows us to reference a secret and mount it to a specified location - mount it somewhere under `/etc`
   ```
@@ -114,7 +114,7 @@ Update your `ArtemisIntegration.java`:
 
 Run your integration:
 ```
-kamel run --resource secret:my-artemis-secret@/etc/ssl/jms-sink ArtemisIntegration.java
+$ kamel run --resource secret:my-artemis-secret@/etc/ssl/jms-sink ArtemisIntegration.java
 ```
 
 <br/>
