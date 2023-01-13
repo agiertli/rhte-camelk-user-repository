@@ -31,9 +31,9 @@ __1. Test the `camel/jbang` cli tooling to understand how the local development 
 - Install `camel` cli as per https://camel.apache.org/manual/camel-jbang.html
 - Create a `ArtemisIntegration.java` camel Route using `camel` cli and run it
   ```
-  camel init ArtemisIntegration.java
+  $ camel init ArtemisIntegration.java
 
-  camel run ArtemisIntegration.java
+  $ camel run ArtemisIntegration.java
   ```
 - You should see similar output in the console log 
   ```
@@ -71,11 +71,11 @@ __Finish the Lab 1 by following steps below:__
 
   - Locate amqp compatible kamelet
     ```
-    camel catalog kamelet | grep amqp
+    $ camel catalog kamelet | grep amqp
     ```
   - Familiarize yourself with the __AMQP Sink Kamelet__
     ```
-    camel doc jms-amqp-10-sink
+    $ camel doc jms-amqp-10-sink
     ```
   - Change the `ArtemisIntegration.java` as follows:
     - remove `;` after the `log` command and add another step in the route using `to` DSL
