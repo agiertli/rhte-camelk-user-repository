@@ -8,7 +8,7 @@ public class KamelPromoteIntegrationArtemis extends RouteBuilder {
     public void configure() throws Exception {
 
         // Write your routes here, for example:
-        from("timer:java?period={{time:1000}}").routeId("{{routeId}}")
+        from("timer:java?period={{time:10000}}").routeId("{{routeId}}")
             .setBody()
                 .simple("Hello Camel from ${routeId}")
             .log("${body}")
