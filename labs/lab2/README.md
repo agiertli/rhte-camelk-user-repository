@@ -93,7 +93,12 @@ By defining the remoteURI query parameters directly in the Kamelet definition, w
 Do not forget you need to __inject a client truststore__ into the integration pod:
 
 - See file `client.ts` in your user git repository.  
-- Create a secret based on the contents of this file. 
+- Create a secret based on the contents of this file.
+  ```
+  cd ssl
+
+  oc create secret generic my-artemis-secret --from-file=client.ts
+  ``` 
 - `kamel` binary allows us to reference a secret and mount it to a specified location - mount it somewhere under `/etc`
   ```
   --resource secret:secretName@/where/you/want/to/mount/it
@@ -106,6 +111,13 @@ Update your `ArtemisIntegration.java`:
 - Get the new _ssl_ service name from `tooling` namespace - beware, the port is also different!
 - trustStorePassword is `password1!`
 - trustStoreLocation should match whatever you passed via `kamel run --resource ..`
+
+Run your integration:
+```
+kamel run --resource secret:my-artemis-secret@/etc/ssl/jms-sink ArtemisIntegration.java
+```
+
+<br/>
 
 ## Summary
 In this lab we focused on customizing the Kamelets. This is a fundamental feature of the Kamelets and it allows you to unlock the full potential of them.  More often than not you will encounter requirements at your own customers which will make out of the box Kamelets not suitable. You can either raise an RFE and wait months for it to be delivered or fix it yourself - and now you should know how.
