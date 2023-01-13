@@ -6,7 +6,8 @@ In this lab we are going to deploy our Integrations using GitOps approach. We wi
 
 ## Tasks
 
-1) Checkout to `main` branch of your user git repository and switch context to `userN-dev` openshift project. 
+ 
+1) Checkout to `main` branch of your user git repository and switch context to `userN-dev` openshift project. Execute `cleanup.sh` to make sure there are no leftovers from the previous lab.
 2) Execute `labs/lab5/utils/create-secrets.sh` script to generate Sealed secrets. Move the generated yaml files to `labs/lab5/secrets/dev` folder.
 3) Change context to `userN-prod` openshift project and execute the same script again. This time, move the generated files to `labs/lab5/secrets/prod`.
 4) Make sure to delete any generated yaml files from the `utils` folder. Commit and push your changes.
