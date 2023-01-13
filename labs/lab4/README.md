@@ -37,7 +37,7 @@ We'll start by inspecting the immutability principles which are by default viola
     ```
     oc get it mutable-integration
 
-    oc get ik <INTEGRATION_KIT_NAME_FROM_PREVIOUS_STEP>`
+    oc get ik <INTEGRATION_KIT_NAME_FROM_PREVIOUS_STEP>
     ```
 
  - Manually deploy the integration into the production namespace and repeat the procedure.
