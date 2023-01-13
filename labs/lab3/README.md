@@ -2,13 +2,13 @@
 
 ## Intro
 
-So far we have been developing our integrations in Java. There are other DSL out there (such as groovy, javascript, and even yaml) but development of such Integrations is still a fairly technical task and it requires camel knowledge. However with well designed (reusable, configurable) Kamelets it's possible to deploy an integration using a slightly different way - by utilizing `KameletBinding`. 
+So far we have been developing our integrations in Java. There are other DSL out there (such as groovy, javascript, and even yaml) but development of such Integrations is still a fairly technical task and it requires camel knowledge. However with well designed (reusable, configurable) `Kamelets` it's possible to deploy an integration using a slightly different way - by utilizing `KameletBinding`. 
 
 As the name suggests, it's a OpenShift custom resource which allows you to bind source/sink kamelets (or camel components) in a declarative way. This opens new possibilities for camel-k. __KameletBindings__ enable non-camel experts to deploy and configure Integrations. 
 
 This doesn't mean usage of camel-k doesn't require deep technical and integration knowledge - somebody _still_ has to develop and maintain the Kamelets, but once that is done, the adoption of __KameletBindings__ (especially when combined with a templating engine such as `helm`) will be very straightfoward. 
 
-It has another advantages - the fact it's a OpenShift CR means we don't have to deal with `kamel` cli anymore to run an integration. We can directly apply the file on OpenShift and it will result into running Integration. This also greatly fits into today's GitOps ways of working.
+It has another advantage - the fact it's a OpenShift CR means we don't have to deal with `kamel cli` anymore to run an integration. We can directly apply the file on OpenShift and it will result into running Integration. This also greatly fits into today's GitOps ways of working.
 
 <br/>
 
@@ -26,15 +26,20 @@ The output of the helm chart should produce this:
 
 ![Helm chart design for Group1](helm-chart-design.svg "Helm Chart design for Group1")
 
-__The actual helm templates were already developed for you.__
+`The actual helm templates were already developed for you.`
+
+<br/>
 
 While helm and KameletBindings go really well together - because it's really easy to template the bindings, Kamelets also heavily depend on using `{{ camel-k-placeholders }}` which conflicts with `{{ helm-placeholders }}`, so figuring out the syntax is a major PITA.
 
+<br/>
+
 __1. Create Secrets__
 
-- First, let's start by secret provisioning. If you finished previous lab, you should already have secret containing `client.ts` available in `userN-dev` namespace. If not, make sure to create it now, i.e.: 
+- Let's start by secret provisioning. If you finished previous lab, you should already have secret containing `client.ts` available in `userN-dev` namespace. If not, make sure to create it now, i.e.: 
 
   ```
+  cd lab3/utils
   oc create secret generic my-artemis-secret --from-file=client.ts
   ```
 
@@ -44,15 +49,15 @@ __1. Create Secrets__
 
   - broker username (admin)
   - broker password (password1!)
-  - broker connection url (we will be using `amqps` url from previous lab)
+  - broker connection url (amqps://rhte-artemis-one-way-ssl-0-svc.tooling.svc.cluster.local:5673)
   - truststore password (password1!)
 
-__You can use `utils/create-secrets.sh` and `utils/artemis-secret.yaml` to assist with this task.__
+  __You can use `utils/create-secrets.sh` and `utils/artemis-secret.yaml` to assist with this task.__
 
-```
-cd lab3/charts/utils
-./create-secrets.sh
-```
+  ```
+  ## Change the values in create-secrets.sh
+  ./create-secrets.sh
+  ```
 
 <br/>
 
@@ -73,15 +78,15 @@ __2. Helm + Kamel = 💪__
 - Change `dev/values.yaml` in such a way that will create the appropriate bindings as per the Helm Diagram screenshot. There are scripts ready for you in `utils` to test the helm chart. 
 
   ```
-  cd lab3/charts
-  ./utils/install.sh
+  oc project userN-dev
+  ./install.sh
   ```
 
   The result should look similar to this:
 
 
   ```
-  oc get klb -n user1-dev
+  oc get klb -n userN-dev
   NAME                           PHASE   REPLICAS
   rhte-camelk.group1.to.group2   Ready   1
   rhte-camelk.group1.to.group3   Ready   1
