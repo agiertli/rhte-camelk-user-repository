@@ -14,9 +14,27 @@ bindings:
 #    sink:
 #      kamelet:  name_of_custom_amqp_sink_kamelet
 #      properties:
-#       destinationNname: target_group (syntax; groupn-dev)
+#       destinationName: target_group (syntax; groupn-dev)
 #       destinationType: topic
 #       remoteURI: "{{amqp.broker-url}}"
 #       username:  "{{amqp.username}}"
 #       password:  "{{amqp.password}}"
 #       trustStorePassword: "{{amqp.trustStorePassword}}"
+
+
+#  - name: rhte-camelk.groupn.to.log
+#    secret: name_of_credentials_secret
+#    sslSecret: secret_with_client.ts
+#    source:
+#      kamelet: name_of_custom_source_kamelet  
+#      properties:
+#       destinationName: name_of_your_group
+#       destinationType: topic
+#       password: "{{amqp.password}}"
+#       remoteURI:  "{{amqp.broker-url}}"
+#       trustStorePassword: "{{amqp.trustStorePassword}}"
+#       username: "{{amqp.username}}"                
+#    sink:
+#      kamelet: log-sink
+#      properties:
+#        showHeaders: true
