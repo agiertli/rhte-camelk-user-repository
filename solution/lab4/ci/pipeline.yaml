@@ -264,6 +264,7 @@ spec:
       cd $(workspaces.source.path)
       # Run the integration and let's use the output to scrape the integration name
       # We need to use the --wait option in order to wait until the Integration is running
+      echo "Executing kamel run $(params.filename) $(params.config) -n $(params.namespace)"
       kamel_output=$(kamel run $(params.filename) $(params.config) -n $(params.namespace) --wait)
       echo $kamel_output | grep -oP 'Integration ".*?" (updated|created)' | awk -F ' ' '{print $2}' | sed "s/\"//g" | tr -d '\n' | tee $(results.integration-name.path)
 ---
@@ -286,6 +287,7 @@ spec:
   - name: promote
     image: docker.io/apache/camel-k:1.11.0
     script: |
+      echo "Executing kamel promote $(params.integration-name) -n $(params.namespace) --to $(params.to)"
       kamel promote $(params.integration-name) -n $(params.namespace) --to $(params.to)
 ---
 apiVersion: tekton.dev/v1beta1
