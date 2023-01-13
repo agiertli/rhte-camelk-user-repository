@@ -284,7 +284,7 @@ spec:
   - name: source
   steps:
   - name: promote
-    image:  v
+    image: docker.io/apache/camel-k:1.11.0
     script: |
       kamel promote $(params.integration-name) -n $(params.namespace) --to $(params.to)
 ---
