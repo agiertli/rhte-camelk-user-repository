@@ -259,7 +259,7 @@ spec:
   steps:
   - name: run
     # The container provides the kamel binary we need
-    image: docker.io/apache/camel-k:1.10.0
+    image: docker.io/apache/camel-k:1.11.0
     script: |
       cd $(workspaces.source.path)
       # Run the integration and let's use the output to scrape the integration name
