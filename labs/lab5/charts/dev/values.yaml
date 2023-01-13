@@ -1,5 +1,5 @@
 ready: false # // CHANGE ME to true when you are ready to start Lab5
-userNamespace: userN-prod # // CHANGE ME !!!
+userNamespace: userN-dev # // CHANGE ME !!!
 # Add as many entries below as many groups you want to interact with
 # Below are two working examples - please make sure to adjust names and destinationName according to your group name.
 bindings:
@@ -14,7 +14,7 @@ bindings:
    sink:
      kamelet:  custom-jms-amqp-10-sink
      properties:
-      destinationName: group2-prod
+      destinationName: group2-dev
       destinationType: topic
       password: "{{amqp.password}}"
       remoteURI:  "{{amqp.broker-url}}"
@@ -27,7 +27,7 @@ bindings:
    source:
      kamelet: custom-jms-amqp-10-source  
      properties:
-      destinationName: group1-prod
+      destinationName: group1-dev
       destinationType: topic
       password: "{{amqp.password}}"
       remoteURI:  "{{amqp.broker-url}}"
