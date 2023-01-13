@@ -73,7 +73,7 @@ We have prepared a `Tekton pipeline` for you which:
 
 In real world pipeline there would be some integration and smoke tests as well, but this is beyond the scope of this lab.
 
-  - Examine `create-resources.sh` script and change it as needed. This will create the resources Integration. Note that we _must_ precreate these in advance of running `kamel promote` operation in the target (production) namespace as well. In real scenario these would be populated by the pipeline or via GitOps. 
+  - Examine `create-resources.sh` script and change it as needed. This will create the required resources which Integration need, such as configMap, secrets, etc. Note that we _must_ precreate these in advance of running `kamel promote` operation in the target (production) namespace as well. In real scenario these would be populated by the pipeline or via GitOps. 
   - Inspect `pipeline.yaml` and understand what it does.
   - Fix the parameters of `kamel run` task (line 331-337). You need to config and mount all the required secrets and config map. Refer to [Runtime Configuration](https://camel.apache.org/camel-k/1.10.x/configuration/runtime-config.html) and [Runtime Resources](https://camel.apache.org/camel-k/1.10.x/configuration/runtime-resources.html) if you need help.
   - Fix parameters of `kamel promote` task (line 346-352)
