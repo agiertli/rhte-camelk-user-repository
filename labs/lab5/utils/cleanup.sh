@@ -1,5 +1,5 @@
-DEV_NAMESPACE=user5-dev
-PROD_NAMESPACE=user5-prod
+DEV_NAMESPACE=userN-dev
+PROD_NAMESPACE=userN-prod
 
 kamel reset --namespace=$DEV_NAMESPACE
 kamel reset --namespace=$PROD_NAMESPACE
