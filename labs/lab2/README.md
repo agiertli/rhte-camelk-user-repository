@@ -13,6 +13,12 @@ $  oc get kamelet | wc -l
 
 People often don't realize that `kamelet` can, and even should be, __extended and customized__. This is how you can ge the best experience out of using them - by tailoring them precisely for your particular use case. And __this is what we are going to do in the Lab 2.__
 
+`Kamelets` can be `Sources` or `Sinks` and are connected throught `KameletBindings`
+
+<br/>
+
+![Kamelets Architecture](kamelets.png "Kamelets Architecture")
+
 <br/>
 
 ## Task
