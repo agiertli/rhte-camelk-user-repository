@@ -79,6 +79,10 @@ We have prepared a `Tekton pipeline` for you which:
 
 <br/>
 
+![Tekton Pipeline](tekton.png "Tekton Pipeline")
+
+<br/>
+
 `In a real world pipeline there would be some integration and smoke tests as well, but this is beyond the scope of this lab.`
 
 <br/>
