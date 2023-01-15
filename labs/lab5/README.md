@@ -6,6 +6,12 @@ In this lab we are going to deploy our Integrations using GitOps approach.
 
 We will explore helm and ArgoCD integration, sealed secrets and also promotion process between `dev` and `prod` environment.
 
+<br/>
+
+![GitOps](gitops.png "GitOps")
+
+<br/>
+
 ## Tasks
 
 __1. Create SealedSecrets__
@@ -40,7 +46,9 @@ Once you push the sealed secrets to your git repository, ArgoCD will apply them 
  $ oc get secret <NAME OF THE SECRET>
  ```
 
- __2. Create Camel-K objects__
+<br/>
+
+__2. Create Camel-K objects__
 
 - Checkout the `dev` branch and edit `lab5/charts/dev/values.yaml` - Add as many bindings as needed, and don't forget to adjust names and destinationNames so they match your group name. 
 - Git commit and push your changes to the `dev` branch. The ArgoCD application is monitoring `dev` branch for changes and will apply them to `userN-dev` openshift project`
