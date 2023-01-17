@@ -4,7 +4,7 @@ metadata:
 components:
   - name: tools
     container:
-      image: quay.io/devfile/universal-developer-image:ubi8-latest
+      image: quay.io/marslan/rhte-camelk:latest
       memoryRequest: 1Gi
       memoryLimit: 3Gi
       cpuLimit: 1000m
@@ -20,7 +20,7 @@ commands:
   - id: install-jbang
     exec:
       component: tools
-      commandLine: " /home/user/.sdkman/candidates/jbang/current/bin/jbang trust add -o --fresh --quiet https://github.com/apache/camel/blob/HEAD/dsl/camel-jbang/camel-jbang-main/dist/CamelJBang.java && /home/user/.sdkman/candidates/jbang/current/bin/jbang app install camel@apache/camel"
+      commandLine: "echo hello"
 events:
   postStart:
     - install-jbang
