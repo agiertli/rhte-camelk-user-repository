@@ -20,7 +20,7 @@ commands:
   - id: install-jbang
     exec:
       component: tools
-      commandLine: "oc project `cat /var/run/secrets/kubernetes.io/serviceaccount/namespace`"
+      commandLine: "oc whoami > /home/user/whoami.txt"
 events:
   postStart:
     - install-jbang
